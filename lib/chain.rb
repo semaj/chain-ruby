@@ -72,6 +72,12 @@ module Chain
     get("/#{API_VERSION}/#{block_chain}/blocks/latest")
   end
 
+  # Provide a Bitcoin block identifier.
+  # Returns all op_return data contained in a block.
+  def self.get_block_op_return(hash_or_height)
+    get("/#{API_VERSION}/#{block_chain}/blocks/#{hash_or_height}/op-returns")
+  end
+
   # Set the key with the value found in your settings page on https://chain.com
   # If no key is set, Chain's guest token will be used. The guest token
   # should not be used for production services.
