@@ -74,7 +74,7 @@ module Chain
 
   # Provide a Bitcoin block identifier.
   # Returns all op_return data contained in a block.
-  def self.get_block_op_return(hash_or_height)
+  def self.get_block_op_returns(hash_or_height)
     get("/#{API_VERSION}/#{block_chain}/blocks/#{hash_or_height}/op-returns")
   end
 

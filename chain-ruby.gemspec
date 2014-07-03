@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.name          = "chain-ruby"
   s.email         = "ryan@chain.com"
-  s.version       = "0.0.12"
+  s.version       = "0.0.13"
   s.date          = "2014-06-19"
   s.description   = "The Official Ruby SDK for Chain's Bitcoin API"
   s.summary       = "The Official Ruby SDK for Chain's Bitcoin API"
