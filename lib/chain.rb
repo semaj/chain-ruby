@@ -41,6 +41,12 @@ module Chain
       options)
   end
 
+  # Provide a Bitcoin address.
+  # Returns all op_return data associated with address.
+  def self.get_block_op_returns(address)
+    get("/#{API_VERSION}/#{block_chain}/addresses/#{address}/op-returns")
+  end
+
   # Provide a Bitcoin transaction.
   # Returns basic details for a Bitcoin transaction (hash).
   def self.get_transaction(hash)
