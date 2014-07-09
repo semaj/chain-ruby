@@ -43,7 +43,7 @@ module Chain
 
   # Provide a Bitcoin address.
   # Returns all op_return data associated with address.
-  def self.get_block_op_returns(address)
+  def self.get_address_op_returns(address)
     get("/#{API_VERSION}/#{block_chain}/addresses/#{address}/op-returns")
   end
 

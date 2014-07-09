@@ -14,7 +14,7 @@ require 'chain'
 
 ## Gemfile
 ```
-gem 'chain-ruby', '~> 0.0.14'
+gem 'chain-ruby', '~> 0.0.15'
 ```
 
 ## Quick Start
