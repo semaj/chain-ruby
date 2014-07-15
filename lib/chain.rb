@@ -28,10 +28,23 @@ module Chain
     get("/#{API_VERSION}/#{block_chain}/addresses/#{address}")
   end
 
+  # Provide an array of Bitcoin addresses.
+  # Returns an array of basic details for a set of Bitcoin address (hash).
+  def self.get_addresses(addresses)
+    self.get_address(addresses.join(','))
+  end
+
   # Provide a Bitcoin address.
   # Returns unspent transaction outputs for a Bitcoin address (array of hashes).
   def self.get_address_unspents(address)
     get("/#{API_VERSION}/#{block_chain}/addresses/#{address}/unspents")
+  end
+
+  # Provide an array of Bitcoin addresses.
+  # Returns an array of unspent transaction outputs
+  # for a set of Bitcoin address (array of hashes).
+  def self.get_addresses_unspents(addresses)
+    self.get_address_unspents(addresses.join(','))
   end
 
   # Provide a Bitcoin address.
@@ -39,6 +52,13 @@ module Chain
   def self.get_address_transactions(address, options={})
     get("/#{API_VERSION}/#{block_chain}/addresses/#{address}/transactions",
       options)
+  end
+
+  # Provide an array of Bitcoin address.
+  # Returns an array of transactions for a set of Bitcoin address
+  # (array of hashes).
+  def self.get_addresses_transactions(addresses, options={})
+    self.get_address_transactions(addresses.join(','), options)
   end
 
   # Provide a Bitcoin address.
