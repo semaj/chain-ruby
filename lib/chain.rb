@@ -104,6 +104,43 @@ module Chain
     get("/#{API_VERSION}/#{block_chain}/blocks/#{hash_or_height}/op-returns")
   end
 
+  def self.create_webhook_url(url, alias_str=nil)
+    body = {}
+    body[:url] = url
+    body[:alias] = alias_str unless alias_str.nil?
+    post("/#{API_VERSION}/webhooks", body)
+  end
+
+  def self.list_webhook_urls
+    get("/#{API_VERSION}/webhooks")
+  end
+
+  def self.update_webhook_url(identifier, url)
+    put("/#{API_VERSION}/webhooks/#{identifier}", {url: url})
+  end
+
+  def self.delete_webhook_url(identifier)
+    delete("/#{API_VERSION}/webhooks/#{identifier}")
+  end
+
+  def self.create_webhook_event(identifier, opts={})
+    body = {}
+    body[:event] = opts[:event] || 'address-transaciton'
+    body[:block_chain] = opts[:block_chain] || self.block_chain
+    body[:address] = opts[:address] || raise(ChainError,
+      "Must specify address when creating a Webhook Event.")
+    body[:confirmations] = opts[:confirmations] || 1
+    post("/#{API_VERSION}/webhooks/#{identifier}/events", body)
+  end
+
+  def self.list_webhook_events(identifier)
+    get("/#{API_VERSION}/webhooks/#{identifier}/events")
+  end
+
+  def self.delete_webhook_event(identifier, event, address)
+    delete("/#{API_VERSION}/webhooks/#{identifier}/events/#{event}/#{address}")
+  end
+
   # Set the key with the value found in your settings page on https://chain.com
   # If no key is set, Chain's guest token will be used. The guest token
   # should not be used for production services.
@@ -113,6 +150,10 @@ module Chain
 
   private
 
+  def self.post(path, body)
+    make_req!(Net::HTTP::Post, path, encode_body!(body))
+  end
+
   def self.put(path, body)
     make_req!(Net::HTTP::Put, path, encode_body!(body))
   end
@@ -120,6 +161,10 @@ module Chain
   def self.get(path, params={})
     path = path + "?" + URI.encode_www_form(params) unless params.empty?
     make_req!(Net::HTTP::Get, path)
+  end
+
+  def self.delete(path)
+    make_req!(Net::HTTP::Delete, path)
   end
 
   def self.make_req!(type, path, body=nil)
