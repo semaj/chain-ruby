@@ -145,7 +145,16 @@ module Chain
   # If no key is set, Chain's guest token will be used. The guest token
   # should not be used for production services.
   def self.api_key=(key)
+    $stderr.puts("Chain.com is deprecating api_key. Use api_key_id.")
     @api_key = key
+  end
+
+  def self.api_key_id=(id)
+    @api_key_id = id
+  end
+
+  def self.api_key_secret=(secret)
+    @api_key_secret = secret
   end
 
   private
@@ -170,7 +179,7 @@ module Chain
   def self.make_req!(type, path, body=nil)
     conn do |c|
       req = type.new(API_URL.request_uri + path)
-      req.basic_auth(api_key, '')
+      req.basic_auth(api_key_id, api_key_secret)
       req['Content-Type'] = 'application/json'
       req['User-Agent'] = 'chain-ruby/0'
       req.body = body
@@ -214,6 +223,14 @@ module Chain
     end
   end
 
+  def self.api_key_id
+    @api_key_id || api_key
+  end
+
+  def self.api_key_secret
+    @api_key_secret || ''
+  end
+
   def self.api_key
     @api_key || key_from_env || GUEST_KEY
   end
@@ -231,6 +248,5 @@ module Chain
   def self.block_chain
     @block_chain || BLOCK_CHAIN
   end
-
 
 end
