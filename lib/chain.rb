@@ -98,16 +98,16 @@ module Chain
     get("/#{API_VERSION}/#{block_chain}/blocks/latest")
   end
 
-  # Provide a Bitcoin block identifier.
+  # Provide a Bitcoin block id.
   # Returns all op_return data contained in a block.
   def self.get_block_op_returns(hash_or_height)
     get("/#{API_VERSION}/#{block_chain}/blocks/#{hash_or_height}/op-returns")
   end
 
-  def self.create_webhook_url(url, alias_str=nil)
+  def self.create_webhook(url, id=nil)
     body = {}
     body[:url] = url
-    body[:alias] = alias_str unless alias_str.nil?
+    body[:id] = id unless id.nil?
     post("/#{API_VERSION}/webhooks", body)
   end
 
@@ -115,30 +115,30 @@ module Chain
     get("/#{API_VERSION}/webhooks")
   end
 
-  def self.update_webhook_url(identifier, url)
-    put("/#{API_VERSION}/webhooks/#{identifier}", {url: url})
+  def self.update_webhook_url(id, url)
+    put("/#{API_VERSION}/webhooks/#{id}", {url: url})
   end
 
-  def self.delete_webhook_url(identifier)
-    delete("/#{API_VERSION}/webhooks/#{identifier}")
+  def self.delete_webhook_url(id)
+    delete("/#{API_VERSION}/webhooks/#{id}")
   end
 
-  def self.create_webhook_event(identifier, opts={})
+  def self.create_webhook_event(id, opts={})
     body = {}
     body[:event] = opts[:event] || 'address-transaciton'
     body[:block_chain] = opts[:block_chain] || self.block_chain
     body[:address] = opts[:address] || raise(ChainError,
       "Must specify address when creating a Webhook Event.")
     body[:confirmations] = opts[:confirmations] || 1
-    post("/#{API_VERSION}/webhooks/#{identifier}/events", body)
+    post("/#{API_VERSION}/webhooks/#{id}/events", body)
   end
 
-  def self.list_webhook_events(identifier)
-    get("/#{API_VERSION}/webhooks/#{identifier}/events")
+  def self.list_webhook_events(id)
+    get("/#{API_VERSION}/webhooks/#{id}/events")
   end
 
-  def self.delete_webhook_event(identifier, event, address)
-    delete("/#{API_VERSION}/webhooks/#{identifier}/events/#{event}/#{address}")
+  def self.delete_webhook_event(id, event, address)
+    delete("/#{API_VERSION}/webhooks/#{id}/events/#{event}/#{address}")
   end
 
   # Set the key with the value found in your settings page on https://chain.com
