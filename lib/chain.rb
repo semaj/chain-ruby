@@ -183,7 +183,13 @@ module Chain
       req['Content-Type'] = 'application/json'
       req['User-Agent'] = 'chain-ruby/0'
       req.body = body
-      parse_resp(c.request(req))
+      resp = c.request(req)
+      resp_code = Integer(resp.code)
+      resp_body = parse_resp(resp)
+      if resp_code / 100 != 2
+        raise(ChainError, "HTTP Request Error: #{resp_body['message']}")
+      end
+      return resp_body
     end
   end
 
