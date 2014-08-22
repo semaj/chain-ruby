@@ -13,11 +13,13 @@ module Chain
     end
 
     def sweep!
-      p @from_keys.keys
-      unspents = Chain.get_address_unspents(@from_keys.keys[0])
+      unspents = Chain.get_addresses_unspents(@from_keys.keys)
       raise "Unspents empty or nil".inspect if unspents.nil? or unspents.empty?
 
-      build_txn(unspents)
+      tx = build_txn(unspents)
+      rawtx = tx.to_payload.unpack('H*')
+
+      Chain.send_transaction(rawtx)
     end
 
     private

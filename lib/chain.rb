@@ -6,6 +6,8 @@ require 'uri'
 
 # A module that wraps the Chain HTTP API.
 module Chain
+  autoload :Sweeper, 'chain/sweeper'
+
   @conn_mutex = Mutex.new
 
   GUEST_KEY = 'GUEST-TOKEN'
