@@ -33,7 +33,7 @@ module Chain
       tx = build_txn(unspents)
       rawtx = tx.to_payload.unpack('H*')
 
-      Chain.send_transaction(rawtx)
+      Chain.send_transaction(rawtx[0])
     end
 
     private
