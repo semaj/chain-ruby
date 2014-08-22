@@ -2,6 +2,8 @@ require 'bitcoin'
 
 module Chain
   class Sweeper
+    MissingUnspentsError = Class.new(StandardError)
+
     @@defaults = {
       fee: 10000
     }
@@ -14,7 +16,7 @@ module Chain
 
     def sweep!
       unspents = Chain.get_addresses_unspents(@from_keys.keys)
-      raise "Unspents empty or nil".inspect if unspents.nil? or unspents.empty?
+      raise(MissingUnspentsError) if unspents.nil? or unspents.empty?
 
       tx = build_txn(unspents)
       rawtx = tx.to_payload.unpack('H*')
