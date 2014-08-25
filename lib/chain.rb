@@ -112,18 +112,22 @@ module Chain
     body[:id] = id unless id.nil?
     post("/#{API_VERSION}/webhooks", body)
   end
+  singleton_class.send(:alias_method, :create_webhook_url, :create_webhook)
 
-  def self.list_webhook_urls
+  def self.list_webhooks
     get("/#{API_VERSION}/webhooks")
   end
+  singleton_class.send(:alias_method, :list_webhook_url, :list_webhooks)
 
-  def self.update_webhook_url(id, url)
+  def self.update_webhook(id, url)
     put("/#{API_VERSION}/webhooks/#{id}", {url: url})
   end
+  singleton_class.send(:alias_method, :update_webhook_url, :update_webhook)
 
-  def self.delete_webhook_url(id)
+  def self.delete_webhook(id)
     delete("/#{API_VERSION}/webhooks/#{id}")
   end
+  singleton_class.send(:alias_method, :delete_webhook_url, :delete_webhook)
 
   def self.create_webhook_event(id, opts={})
     body = {}
