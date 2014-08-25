@@ -240,7 +240,7 @@ module Chain
   end
 
   def self.api_key_secret
-    @api_key_secret || ''
+    @api_key_secret || secret_from_env || ''
   end
 
   def self.api_key
@@ -250,6 +250,12 @@ module Chain
   def self.key_from_env
     if url = ENV['CHAIN_URL']
       URI.parse(url).user
+    end
+  end
+
+  def self.secret_from_env
+    if url = ENV['CHAIN_URL']
+      URI.parse(url).password
     end
   end
 
