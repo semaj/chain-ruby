@@ -135,7 +135,9 @@ module Chain
     body[:block_chain] = opts[:block_chain] || self.block_chain
     body[:address] = opts[:address] || raise(ChainError,
       "Must specify address when creating a Webhook Event.")
-    body[:confirmations] = opts[:confirmations] || 1
+    unless opts[:confirmations].nil?
+      body[:confirmations] = opts[:confirmations]
+    end
     post("/#{API_VERSION}/webhooks/#{id}/events", body)
   end
 
