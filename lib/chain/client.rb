@@ -9,9 +9,9 @@ module Chain
     # these values they will be filled in the the guest token information.
     # Guest tokens are limited in their access to the Chain API.
     def initialize(opts={})
-      url = opts[:url] || Chain.url
-      key_id = opts[:key_id] || Chain.url.user
-      key_secret = opts[:key_secret] || Chain.url.password
+      url = URI(opts[:url]) || Chain.url
+      key_id = url.user || opts[:key_id] || Chain.url.user
+      key_secret = url.password || opts[:key_secret] || Chain.url.password
       @block_chain = opts[:block_chain] || Chain.block_chain
       @conn = Conn.new(url, key_id, key_secret)
     end
