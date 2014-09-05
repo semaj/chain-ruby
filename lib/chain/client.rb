@@ -154,5 +154,9 @@ module Chain
       @conn.post("/#{API_VERSION}/payments", body)
     end
 
+    def payments
+      @conn.get("/#{API_VERSION}/payments")
+    end
+
   end
 end
