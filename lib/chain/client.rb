@@ -127,7 +127,7 @@ module Chain
 
     def create_webhook_event(id, opts={})
       body = {}
-      body[:event] = opts[:event] || 'address-transaciton'
+      body[:event] = opts[:event] || 'address-transaction'
       body[:block_chain] = opts[:block_chain] || block_chain
       body[:address] = opts[:address] || raise(ChainError,
         "Must specify address when creating a Webhook Event.")
