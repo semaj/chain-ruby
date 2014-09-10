@@ -7,6 +7,7 @@ module Chain
     DEFAULT_FEE = 10_000
     MissingUnspentsError = Class.new(StandardError)
     MissingInputsError = Class.new(StandardError)
+    InsufficientFundsError = Class.new(StandardError)
 
     # Create a new Transaction which will be ready for hex encoding and
     # subsequently delivery to the Chain API.
@@ -25,7 +26,7 @@ module Chain
 
     # Returns the hex encoded transaction data.
     def hex
-      @hex ||= build_txn.to_payload.unpack('H*')[0]
+      @hex ||= build.to_payload.unpack('H*')[0]
     end
 
     # Send's the hex encoded transaction data to the Chain API.
@@ -77,7 +78,9 @@ module Chain
     # Consumes the unspents of the addresses in the @inputs
     # Creates outputs specifed by @outputs
     # Adds an additional output to the change_address if change is greater than 0.
-    def build_txn
+    def build
+      raise(InsufficientFundsError) if outputs_amount > unspents_amount
+
       builder  = Bitcoin::Builder::TxBuilder.new
 
       unspents.each do |unspent|

@@ -19,7 +19,7 @@ describe Chain::Transaction do
     it "should consider unspents, outputs and a fee" do
       expect(Chain).
       to receive(:get_addresses_unspents).
-      and_return([Fixtures['get_addresses_unspents']])
+      and_return(Fixtures['get_addresses_unspents'])
 
       txn = Chain::Transaction.new(
         inputs: ['cVdtEyijQXFx7bmwrBMrWVbqpg8VWXsGtrUYtZR6fNZ6r4cRnRT5'],
@@ -69,6 +69,25 @@ describe Chain::Transaction do
         change_address: 'mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd'
       )
       expect(txn.change_address).to eq('mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd')
+    end
+  end
+
+  describe "insufficient funds" do
+    it "will raise an exception" do
+      expect(Chain).
+      to receive(:get_addresses_unspents).
+      and_return(Fixtures['get_addresses_unspents'])
+
+      unspents_amount = Fixtures['get_addresses_unspents'][0]['value']
+
+      txn = Chain::Transaction.new(
+        inputs: ['cVdtEyijQXFx7bmwrBMrWVbqpg8VWXsGtrUYtZR6fNZ6r4cRnRT5'],
+        outputs: {
+          'mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd' => unspents_amount * 2
+        }
+      )
+      expect {txn.build}.
+      to raise_error(Chain::Transaction::InsufficientFundsError)
     end
   end
 

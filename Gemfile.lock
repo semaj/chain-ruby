@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    chain-ruby (0.2.1pre)
+    chain-ruby (0.2.3pre)
       chain-bitcoin-ruby (= 0.0.1)
 
 GEM
@@ -35,7 +35,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  byebug
+  byebug (= 3.4.0)
   chain-ruby!
   ffi
   rake

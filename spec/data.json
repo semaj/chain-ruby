@@ -4,7 +4,7 @@
     "private": "cVdtEyijQXFx7bmwrBMrWVbqpg8VWXsGtrUYtZR6fNZ6r4cRnRT5"
   },
 
-  "get_addresses_unspents": {
+  "get_addresses_unspents": [{
       "transaction_hash": "0bf0de38c26195919179f42d475beb7a6b15258c38b57236afdd60a07eddd2cc",
       "output_index": 0,
       "value": 10000,
@@ -17,5 +17,5 @@
       "required_signatures":  1,
       "spent": false,
       "confirmations": 8758
-  }
+  }]
 }
