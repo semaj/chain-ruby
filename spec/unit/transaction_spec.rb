@@ -32,4 +32,23 @@ describe Chain::Transaction do
     end
   end
 
+  describe "Change address" do
+    it "uses the first address in the list of inputs when not specified" do
+      txn = Chain::Transaction.new(
+        inputs: ['cVdtEyijQXFx7bmwrBMrWVbqpg8VWXsGtrUYtZR6fNZ6r4cRnRT5'],
+        outputs: {}
+      )
+      expect(txn.change_address).to eq('mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd')
+    end
+    it "uses the specified address" do
+      txn = Chain::Transaction.new(
+        inputs: ['cTph6fWJeBsPUV74kd314MTKzXJttk1ByzYor5yCPEDNvyiPbw3B'],
+        outputs: {},
+        change_address: 'mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd'
+      )
+      expect(txn.change_address).to eq('mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd')
+    end
+
+  end
+
 end

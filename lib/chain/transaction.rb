@@ -56,7 +56,7 @@ module Chain
     end
 
     def change_address
-      @change_addr || @inputs.keys.first
+      @change_address || @inputs.keys.first
     end
 
     def build_txn
