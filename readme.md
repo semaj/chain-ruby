@@ -1,5 +1,7 @@
 ## chain-ruby
 
+[![Build Status](https://travis-ci.org/chain-engineering/chain-ruby.svg?branch=txn-dest-map)](https://travis-ci.org/chain-engineering/chain-ruby)
+
 Chain's official Ruby SDK.
 
 ## Install

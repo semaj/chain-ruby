@@ -7,6 +7,7 @@ require 'uri'
 # A module that wraps the Chain SDK.
 module Chain
   autoload :Sweeper, 'chain/sweeper'
+  autoload :Transaction, 'chain/transaction'
   autoload :Client, 'chain/client'
   autoload :Conn, 'chain/conn'
 

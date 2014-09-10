@@ -1,0 +1,21 @@
+{
+  "testnet_address": {
+    "public": "mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd",
+    "private": "cVdtEyijQXFx7bmwrBMrWVbqpg8VWXsGtrUYtZR6fNZ6r4cRnRT5"
+  },
+
+  "get_addresses_unspents": {
+      "transaction_hash": "0bf0de38c26195919179f42d475beb7a6b15258c38b57236afdd60a07eddd2cc",
+      "output_index": 0,
+      "value": 10000,
+      "addresses": [
+          "1K4nPxBMy6sv7jssTvDLJWk1ADHBZEoUVb"
+      ],
+      "script": "OP_DUP OP_HASH160 c629680b8d13ca7a4b7d196360186d05658da6db OP_EQUALVERIFY OP_CHECKSIG",
+      "script_hex": "76a914c629680b8d13ca7a4b7d196360186d05658da6db88ac",
+      "script_type": "pubkeyhash",
+      "required_signatures":  1,
+      "spent": false,
+      "confirmations": 8758
+  }
+}
