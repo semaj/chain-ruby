@@ -21,7 +21,29 @@ describe Chain::Transaction do
     end
   end
 
+  describe "fee" do
+
+    it "uses initialized value" do
+      txn = Chain::Transaction.new(
+        inputs: [Fixtures['testnet_address']['private']],
+        outputs: {},
+        fee: 9
+      )
+      expect(txn.fee).to eq(9)
+    end
+
+    it "uses default value" do
+      txn = Chain::Transaction.new(
+        inputs: [Fixtures['testnet_address']['private']],
+        outputs: {}
+      )
+      expect(txn.fee).to eq(Chain::Transaction::DEFAULT_FEE)
+    end
+
+  end
+
   describe "change_address" do
+
     it "uses the first address in the list of inputs when not specified" do
       txn = Chain::Transaction.new(
         inputs: ['cVdtEyijQXFx7bmwrBMrWVbqpg8VWXsGtrUYtZR6fNZ6r4cRnRT5'],
@@ -29,6 +51,7 @@ describe Chain::Transaction do
       )
       expect(txn.change_address).to eq('mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd')
     end
+
     it "uses the specified address" do
       txn = Chain::Transaction.new(
         inputs: ['cTph6fWJeBsPUV74kd314MTKzXJttk1ByzYor5yCPEDNvyiPbw3B'],
