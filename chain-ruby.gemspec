@@ -11,4 +11,6 @@ Gem::Specification.new do |s|
   s.files         = ['./lib/chain.rb', './lib/chain/sweeper.rb', 'chain.pem']
   s.require_path  = "lib"
   s.add_runtime_dependency 'chain-bitcoin-ruby', '0.0.1'
+  s.add_development_dependency 'rspec', '3.1.0'
+  s.add_development_dependency 'byebug'
 end
