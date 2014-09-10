@@ -66,9 +66,9 @@ describe Chain::Transaction do
       txn = Chain::Transaction.new(
         inputs: ['cTph6fWJeBsPUV74kd314MTKzXJttk1ByzYor5yCPEDNvyiPbw3B'],
         outputs: {},
-        change_address: 'mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd'
+        change_address: 'mxxdfxLaFGePNfFJQiVkyLix3ZAjY6cKQd'
       )
-      expect(txn.change_address).to eq('mxxdfxLaFGePNfFJQiVkyLix3ZAjY5cKQd')
+      expect(txn.change_address).to eq('mxxdfxLaFGePNfFJQiVkyLix3ZAjY6cKQd')
     end
   end
 
