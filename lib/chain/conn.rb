@@ -40,7 +40,7 @@ module Chain
         resp_code = Integer(resp.code)
         resp_body = parse_resp(resp)
         if resp_code / 100 != 2
-          raise(ChainError, "HTTP Request Error: #{resp_body['message']}")
+          raise(ChainError, "#{resp_body['message']}")
         end
         return resp_body
       end
@@ -50,7 +50,7 @@ module Chain
       begin
         JSON.dump(hash)
       rescue => e
-        raise(ChainError, "JSON encoding error: #{e.message}")
+        raise(ChainError, "#{e.message}")
       end
     end
 
@@ -58,7 +58,7 @@ module Chain
       begin
         JSON.parse(resp.body)
       rescue => e
-        raise(ChainError, "JSON decoding error: #{e.message}")
+        raise(ChainError, "#{e.message}")
       end
     end
 
@@ -69,7 +69,7 @@ module Chain
           return yield(@conn)
         rescue => e
           @conn = nil
-          raise(ChainError, "Connection error: #{e.message}")
+          raise(ChainError, "#{e.message}")
         end
       end
     end
