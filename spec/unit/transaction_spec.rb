@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Chain::Transaction do
 
-  describe "Calculating change." do
+  describe "change" do
     it "should consider unspents, outputs and a fee" do
       expect(Chain).
       to receive(:get_addresses_unspents).
@@ -21,7 +21,7 @@ describe Chain::Transaction do
     end
   end
 
-  describe "Change address" do
+  describe "change_address" do
     it "uses the first address in the list of inputs when not specified" do
       txn = Chain::Transaction.new(
         inputs: ['cVdtEyijQXFx7bmwrBMrWVbqpg8VWXsGtrUYtZR6fNZ6r4cRnRT5'],
