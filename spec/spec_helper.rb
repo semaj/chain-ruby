@@ -9,6 +9,8 @@ Bundler.require :default, :test
 
 Bitcoin.network = :testnet3
 
+Fixtures = JSON.parse(File.read("./spec/data.json"))
+
 RSpec.configure do |config|
   config.order = 'random'
   config.filter_run :focus => true
