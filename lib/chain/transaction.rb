@@ -99,14 +99,14 @@ module Chain
         end
       end
 
-      unless change.zero?
+      if !@fee.nil? and !change.zero?
         builder.output do |out|
           out.value change
           out.script {|s| s.recipient(@change_address)}
         end
       end
 
-      builder.tx
+      builder.tx(change_address: @change_address, input_value: unspents_amount)
     end
 
   end
