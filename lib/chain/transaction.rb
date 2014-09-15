@@ -102,7 +102,7 @@ module Chain
       unless change.zero?
         builder.output do |out|
           out.value change
-          out.script {|s| s.recipient(@change_address)}
+          out.script {|s| s.recipient(change_address)}
         end
       end
 
