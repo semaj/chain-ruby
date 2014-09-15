@@ -104,9 +104,10 @@ module Chain
           out.value change
           out.script {|s| s.recipient(change_address)}
         end
+        builder.tx
+      else
+        builder.tx(change_address: change_address, input_value: unspents_amount)
       end
-
-      builder.tx(change_address: change_address, input_value: unspents_amount)
     end
 
   end
