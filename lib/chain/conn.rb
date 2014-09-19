@@ -76,10 +76,12 @@ module Chain
 
     def establish_conn
       Net::HTTP.new(@url.host, @url.port).tap do |c|
-        c.use_ssl = true
-        c.verify_mode = OpenSSL::SSL::VERIFY_PEER
         c.set_debug_output($stdout) if ENV['DEBUG']
-        c.ca_file = CHAIN_PEM
+        if @url.scheme == 'https'
+          c.use_ssl = true
+          c.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          c.ca_file = CHAIN_PEM
+        end
       end
     end
 
