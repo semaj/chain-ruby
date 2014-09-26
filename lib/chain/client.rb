@@ -107,6 +107,7 @@ module Chain
       url || raise(ChainError,
         "Must specify a Webhook URL.")
       body = {}
+      body[:url] = url
       body[:address] = opts[:address] || raise(ChainError,
         "Must specify a address.")
       body[:confirmations] = opts[:confirmations] || 1
