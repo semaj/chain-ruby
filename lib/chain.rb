@@ -18,7 +18,7 @@ module Chain
   CHAIN_PEM = File.expand_path('../../chain.pem', __FILE__)
 
   # Prefixed in the path of HTTP requests.
-  API_VERSION = 'v1'
+  API_VERSION = 'v2'
   BLOCK_CHAIN = 'bitcoin'
 
   # Raised when an unexpected error occurs in either
