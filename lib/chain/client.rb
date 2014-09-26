@@ -122,8 +122,8 @@ module Chain
       @conn.delete("/#{API_VERSION}/webhooks/#{id}")
     end
 
-    def trigger_webhook(id)
-      @conn.post("/#{API_VERSION}/webhooks/#{id}/trigger", {})
+    def test_webhook(id)
+      @conn.post("/#{API_VERSION}/webhooks/#{id}/test", {})
     end
 
   end
