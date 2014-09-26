@@ -123,7 +123,7 @@ module Chain
     end
 
     def trigger_webhook(id)
-      @conn.post("/#{API_VERSION}/webhooks/#{id}/trigger", '')
+      @conn.post("/#{API_VERSION}/webhooks/#{id}/trigger", {})
     end
 
   end
