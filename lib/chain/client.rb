@@ -102,60 +102,27 @@ module Chain
       @conn.get(url)
     end
 
-    def create_webhook(url, id=nil)
+    def create_webhook(type, url, opts={})
+      type || 'address-transaction'
+      url || raise(ChainError,
+        "Must specify a Webhook URL.")
       body = {}
-      body[:url] = url
-      body[:id] = id unless id.nil?
-      @conn.post("/#{API_VERSION}/webhooks", body)
+      body[:address] = opts[:address] || raise(ChainError,
+        "Must specify a address.")
+      body[:confirmations] = opts[:confirmations] || 1
+      @conn.post("/#{API_VERSION}/webhooks/#{type}", body)
     end
-    alias_method :create_webhook_url, :create_webhook
 
     def list_webhooks
       @conn.get("/#{API_VERSION}/webhooks")
     end
-    alias_method :list_webhook_url, :list_webhooks
-
-    def update_webhook(id, url)
-      @conn.put("/#{API_VERSION}/webhooks/#{id}", {url: url})
-    end
-    alias_method :update_webhook_url, :update_webhook
 
     def delete_webhook(id)
       @conn.delete("/#{API_VERSION}/webhooks/#{id}")
     end
-    alias_method :delete_webhook_url, :delete_webhook
 
-    def create_webhook_event(id, opts={})
-      body = {}
-      body[:event] = opts[:event] || 'address-transaction'
-      body[:block_chain] = opts[:block_chain] || block_chain
-      body[:address] = opts[:address] || raise(ChainError,
-        "Must specify address when creating a Webhook Event.")
-      body[:confirmations] = opts[:confirmations] || 1
-      @conn.post("/#{API_VERSION}/webhooks/#{id}/events", body)
-    end
-
-    def list_webhook_events(id)
-      @conn.get("/#{API_VERSION}/webhooks/#{id}/events")
-    end
-
-    def delete_webhook_event(id, event, address)
-      @conn.delete("/#{API_VERSION}/webhooks/#{id}/events/#{event}/#{address}")
-    end
-
-    # Provide a destination address.
-    # Returns a payment address that will automatically forward to the
-    # destination address when funds are sent to it.
-    # If Webhook parameters are provided, a Webhook event will be created
-    # to notify your server when funds are sent to the payment address.
-    def create_payment_address(dest_addr, body={})
-      body[:destination_address] = dest_addr
-      body[:block_chain] ||= block_chain
-      @conn.post("/#{API_VERSION}/payments", body)
-    end
-
-    def payments
-      @conn.get("/#{API_VERSION}/payments")
+    def trigger_webhook(id)
+      @conn.post("/#{API_VERSION}/webhooks/#{id}/trigger")
     end
 
   end
