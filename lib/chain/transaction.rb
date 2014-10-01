@@ -99,14 +99,17 @@ module Chain
         end
       end
 
-      unless change.zero?
+      # If the caller supplies a fee, we should use that,
+      # instead of using the default.
+      if @fee and change > 0
         builder.output do |out|
           out.value change
           out.script {|s| s.recipient(change_address)}
         end
+        builder.tx
+      else
+        builder.tx(change_address: change_address, input_value: unspents_amount)
       end
-
-      builder.tx
     end
 
   end
