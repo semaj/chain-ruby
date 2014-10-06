@@ -127,5 +127,13 @@ module Chain
       @conn.post("/#{API_VERSION}/webhooks/#{id}/test", {})
     end
 
+    def webhook_notifications(id)
+      @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications", {})
+    end
+
+    def webhook_failed_notifications(id)
+      @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications?failed=true", {})
+    end
+
   end
 end
