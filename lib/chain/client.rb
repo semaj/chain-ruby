@@ -116,27 +116,27 @@ module Chain
     end
 
     def list_webhooks
-      @conn.get("/#{API_VERSION}/webhooks")
+      @conn.get("/v2/webhooks")
     end
 
     def delete_webhook(id)
-      @conn.delete("/#{API_VERSION}/webhooks/#{id}")
+      @conn.delete("/v2/webhooks/#{id}")
     end
 
     def test_webhook(id)
-      @conn.post("/#{API_VERSION}/webhooks/#{id}/test", {})
+      @conn.post("/v2/webhooks/#{id}/test", {})
     end
 
     def notifications
-      @conn.get("/#{API_VERSION}/notifications")
+      @conn.get("/v2/notifications")
     end
 
     def webhook_notifications(id)
-      @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications", {})
+      @conn.get("/v2/webhooks/#{id}/notifications", {})
     end
 
     def webhook_failed_notifications(id)
-      @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications?failed=true", {})
+      @conn.get("/v2/webhooks/#{id}/notifications?failed=true", {})
     end
 
   end
