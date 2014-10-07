@@ -131,6 +131,10 @@ module Chain
       @conn.get("/v2/notifications")
     end
 
+    def failed_notifications
+      @conn.get("/v2/notifications?failed=true")
+    end
+
     def webhook_notifications(id)
       @conn.get("/v2/webhooks/#{id}/notifications", {})
     end
