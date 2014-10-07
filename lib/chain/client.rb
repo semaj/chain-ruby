@@ -127,8 +127,8 @@ module Chain
       @conn.post("/#{API_VERSION}/webhooks/#{id}/test", {})
     end
 
-    def notifications(id)
-      @conn.get("/#{API_VERSION}/notifications", {})
+    def notifications
+      @conn.get("/#{API_VERSION}/notifications")
     end
 
     def webhook_notifications(id)
