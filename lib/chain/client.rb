@@ -108,7 +108,7 @@ module Chain
         "Must specify a Webhook URL.")
       body = {}
       body[:url] = url
-      body[:block_chain] = opts[:block_chain]
+      body[:block_chain] = opts[:block_chain],
       body[:address] = opts[:address] || raise(ChainError,
         "Must specify a address.")
       body[:confirmations] = opts[:confirmations] || 1
@@ -125,6 +125,10 @@ module Chain
 
     def test_webhook(id)
       @conn.post("/#{API_VERSION}/webhooks/#{id}/test", {})
+    end
+
+    def notifications(id)
+      @conn.get("/#{API_VERSION}/notifications", {})
     end
 
     def webhook_notifications(id)
