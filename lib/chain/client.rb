@@ -112,7 +112,7 @@ module Chain
       body[:address] = opts[:address] || raise(ChainError,
         "Must specify a address.")
       body[:confirmations] = opts[:confirmations] || 1
-      @conn.post("/#{API_VERSION}/webhooks/#{type}", body)
+      @conn.post("/v2/webhooks/#{type}", body)
     end
 
     def list_webhooks
