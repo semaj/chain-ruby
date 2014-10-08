@@ -109,9 +109,11 @@ module Chain
       body = {}
       body[:url] = url
       body[:block_chain] = opts[:block_chain]
+      body[:transaction_hash] = opts[:transaction_hash]
       body[:address] = opts[:address] || raise(ChainError,
         "Must specify a address.")
-      body[:confirmations] = opts[:confirmations] || 1
+      body[:min_confirmations] = opts[:min_confirmations] || 0
+      body[:max_confirmations] = opts[:max_confirmations] || 6
       @conn.post("/v2/webhooks/#{type}", body)
     end
 
