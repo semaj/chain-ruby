@@ -144,5 +144,13 @@ module Chain
       @conn.get("/v2/webhooks/#{id}/notifications?failed=true", {})
     end
 
+    def get_notification(id)
+      @conn.get("/v2/notifications/#{id}", {})
+    end
+
+    def attempt_notification(id)
+      @conn.post("/v2/notifications/#{id}/attempt", {})
+    end
+
   end
 end
