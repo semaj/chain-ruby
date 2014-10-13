@@ -113,43 +113,45 @@ module Chain
       body[:transaction_hash] = opts[:transaction_hash]
       body[:min_confirmations] = opts[:min_confirmations] || 0
       body[:max_confirmations] = opts[:max_confirmations] || 6
-      @conn.post("/v2/webhooks/#{type}", body)
+      @conn.post("/#{API_VERSION}/webhooks/#{type}", body)
     end
 
     def list_webhooks
-      @conn.get("/v2/webhooks")
+      @conn.get("/#{API_VERSION}/webhooks")
     end
 
     def delete_webhook(id)
-      @conn.delete("/v2/webhooks/#{id}")
+      @conn.delete("/#{API_VERSION}/webhooks/#{id}")
     end
 
     def test_webhook(id)
-      @conn.post("/v2/webhooks/#{id}/test", {})
+      @conn.post("/#{API_VERSION}/webhooks/#{id}/test", {})
     end
 
+    # Notification Results by User
     def notifications
-      @conn.get("/v2/notifications")
+      @conn.get("/#{API_VERSION}/notifications")
     end
 
+    # Failed Notification Results by User
     def failed_notifications
-      @conn.get("/v2/notifications?failed=true")
+      @conn.get("/#{API_VERSION}/notifications?failed=true")
     end
 
     def webhook_notifications(id)
-      @conn.get("/v2/webhooks/#{id}/notifications", {})
+      @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications", {})
     end
 
     def webhook_failed_notifications(id)
-      @conn.get("/v2/webhooks/#{id}/notifications?failed=true", {})
+      @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications?failed=true", {})
     end
 
     def get_notification(id)
-      @conn.get("/v2/notifications/#{id}", {})
+      @conn.get("/#{API_VERSION}/notifications/#{id}", {})
     end
 
     def attempt_notification(id)
-      @conn.post("/v2/notifications/#{id}/attempt", {})
+      @conn.post("/#{API_VERSION}/notifications/#{id}/attempt", {})
     end
 
   end
