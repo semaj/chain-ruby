@@ -102,10 +102,15 @@ module Chain
       @conn.get(url)
     end
 
-    def create_webhook(type, url, opts={})
+    # Notifications by user
+    def notifications
+      @conn.get("/#{API_VERSION}/webhooks")
+    end
+
+    def create_notification(type, url, opts={})
       type || 'address-transaction'
       url || raise(ChainError,
-        "Must specify a Webhook URL.")
+        "Must specify a Notification URL.")
       body = {}
       body[:url] = url
       body[:block_chain] = opts[:block_chain]
@@ -116,41 +121,39 @@ module Chain
       @conn.post("/#{API_VERSION}/webhooks/#{type}", body)
     end
 
-    def list_webhooks
-      @conn.get("/#{API_VERSION}/webhooks")
-    end
-
-    def delete_webhook(id)
-      @conn.delete("/#{API_VERSION}/webhooks/#{id}")
-    end
-
-    def test_webhook(id)
+    def test_notification(id)
       @conn.post("/#{API_VERSION}/webhooks/#{id}/test", {})
     end
 
-    # Notification Results by User
-    def notifications
-      @conn.get("/#{API_VERSION}/notifications")
+    def delete_notification(id)
+      @conn.delete("/#{API_VERSION}/webhooks/#{id}")
     end
 
-    # Failed Notification Results by User
-    def failed_notifications
-      @conn.get("/#{API_VERSION}/notifications?failed=true")
-    end
-
-    def webhook_notifications(id)
+    # Notification Results by notification
+    def notification_results(id)
       @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications", {})
     end
 
-    def webhook_failed_notifications(id)
+    # Failed Notification Results by notification
+    def notification_failed_notifications(id)
       @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications?failed=true", {})
     end
 
-    def get_notification(id)
+    # Notification Results by user
+    def results
+      @conn.get("/#{API_VERSION}/notifications")
+    end
+
+    # Failed Notification Results by user
+    def failed_results
+      @conn.get("/#{API_VERSION}/notifications?failed=true")
+    end
+
+    def get_result(id)
       @conn.get("/#{API_VERSION}/notifications/#{id}", {})
     end
 
-    def attempt_notification(id)
+    def attempt_result(id)
       @conn.post("/#{API_VERSION}/notifications/#{id}/attempt", {})
     end
 
