@@ -135,7 +135,7 @@ module Chain
     end
 
     # Failed Notification Results by notification
-    def notification_failed_notifications(id)
+    def notification_failed_results(id)
       @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications?failed=true", {})
     end
 
