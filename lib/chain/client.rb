@@ -130,31 +130,21 @@ module Chain
     end
 
     # Notification Results by notification
-    def notification_results(id)
-      @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications", {})
-    end
-
-    # Failed Notification Results by notification
-    def notification_failed_results(id)
-      @conn.get("/#{API_VERSION}/webhooks/#{id}/notifications?failed=true", {})
+    def notification_results(nid, params={})
+      @conn.get("/#{API_VERSION}/webhooks/#{nid}/notifications", params)
     end
 
     # Notification Results by user
-    def results
-      @conn.get("/#{API_VERSION}/notifications")
+    def results(params={})
+      @conn.get("/#{API_VERSION}/notifications", params)
     end
 
-    # Failed Notification Results by user
-    def failed_results
-      @conn.get("/#{API_VERSION}/notifications?failed=true")
+    def result(id)
+      @conn.get("/#{API_VERSION}/notifications/#{id}")
     end
 
-    def get_result(id)
-      @conn.get("/#{API_VERSION}/notifications/#{id}", {})
-    end
-
-    def attempt_result(id)
-      @conn.post("/#{API_VERSION}/notifications/#{id}/attempt", {})
+    def attempt_result(nid)
+      @conn.post("/#{API_VERSION}/notifications/#{nid}/attempt", {})
     end
 
   end
