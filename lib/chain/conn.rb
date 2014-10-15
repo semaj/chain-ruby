@@ -81,6 +81,7 @@ module Chain
           c.use_ssl = true
           c.verify_mode = OpenSSL::SSL::VERIFY_PEER
           c.ca_file = CHAIN_PEM
+          c.cert_store = OpenSSL::X509::Store.new
         end
       end
     end
