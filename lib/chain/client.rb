@@ -104,7 +104,7 @@ module Chain
 
     # Notifications by user
     def notifications
-      @conn.get("/#{API_VERSION}/webhooks")
+      @conn.get("/#{API_VERSION}/notifications")
     end
 
     def create_notification(type, url, opts={})
@@ -118,33 +118,33 @@ module Chain
       body[:transaction_hash] = opts[:transaction_hash]
       body[:min_confirmations] = opts[:min_confirmations] || 0
       body[:max_confirmations] = opts[:max_confirmations] || 6
-      @conn.post("/#{API_VERSION}/webhooks/#{type}", body)
+      @conn.post("/#{API_VERSION}/notifications/#{type}", body)
     end
 
     def test_notification(id)
-      @conn.post("/#{API_VERSION}/webhooks/#{id}/test", {})
+      @conn.post("/#{API_VERSION}/notifications/#{id}/test", {})
     end
 
     def delete_notification(id)
-      @conn.delete("/#{API_VERSION}/webhooks/#{id}")
+      @conn.delete("/#{API_VERSION}/notifications/#{id}")
     end
 
     # Notification Results by notification
     def notification_results(nid, params={})
-      @conn.get("/#{API_VERSION}/webhooks/#{nid}/notifications", params)
+      @conn.get("/#{API_VERSION}/notifications/#{nid}/results", params)
     end
 
     # Notification Results by user
     def results(params={})
-      @conn.get("/#{API_VERSION}/notifications", params)
+      @conn.get("/#{API_VERSION}/results", params)
     end
 
     def result(id)
-      @conn.get("/#{API_VERSION}/notifications/#{id}")
+      @conn.get("/#{API_VERSION}/results/#{id}")
     end
 
     def attempt_result(nid)
-      @conn.post("/#{API_VERSION}/notifications/#{nid}/attempt", {})
+      @conn.post("/#{API_VERSION}/results/#{nid}/attempt", {})
     end
 
   end
