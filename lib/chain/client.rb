@@ -129,6 +129,10 @@ module Chain
       @conn.delete("/#{API_VERSION}/notifications/#{id}")
     end
 
+    def enable_all_notifications
+      @conn.get("/#{API_VERSION}/notifications/enable_all")
+    end
+
     # Notification Results by notification
     def notification_results(nid, params={})
       @conn.get("/#{API_VERSION}/notifications/#{nid}/results", params)
