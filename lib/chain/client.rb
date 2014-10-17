@@ -130,7 +130,7 @@ module Chain
     end
 
     def enable_all_notifications
-      @conn.post("/#{API_VERSION}/notifications/enable_all")
+      @conn.post("/#{API_VERSION}/notifications/enable_all", {})
     end
 
     # Notification Results by notification
