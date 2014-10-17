@@ -103,8 +103,8 @@ module Chain
     end
 
     # Notifications by user
-    def notifications
-      @conn.get("/#{API_VERSION}/notifications")
+    def notifications(params={})
+      @conn.get("/#{API_VERSION}/notifications", params)
     end
 
     def create_notification(type, url, opts={})
