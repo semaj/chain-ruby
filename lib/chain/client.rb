@@ -151,5 +151,29 @@ module Chain
       @conn.post("/#{API_VERSION}/results/#{nid}/attempt", {})
     end
 
+    # Legacy v1 Webhooks
+    def create_webhook(url, id=nil)
+       body = {}
+       body[:url] = url
+       body[:id] = id unless id.nil?
+       @conn.post("/v1/webhooks", body)
+     end
+     alias_method :create_webhook_url, :create_webhook
+
+     def list_webhooks
+       @conn.get("/v1/webhooks")
+     end
+     alias_method :list_webhook_url, :list_webhooks
+
+     def update_webhook(id, url)
+       @conn.put("/v1/webhooks/#{id}", {url: url})
+     end
+     alias_method :update_webhook_url, :update_webhook
+
+     def delete_webhook(id)
+       @conn.delete("/v1/webhooks/#{id}")
+     end
+     alias_method :delete_webhook_url, :delete_webhook
+
   end
 end
