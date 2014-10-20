@@ -3,6 +3,7 @@ require 'net/https'
 require 'json'
 require 'thread'
 require 'uri'
+require 'btcruby'
 
 # A module that wraps the Chain SDK.
 module Chain

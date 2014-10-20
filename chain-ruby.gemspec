@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description   = "The Official Ruby SDK for Chain's Bitcoin API"
   s.summary       = "The Official Ruby SDK for Chain's Bitcoin API"
   s.authors       = ["Ryan R. Smith", "Eric Rykwalder"]
-  s.homepage      = "http://github.com/chain-engineering/chain-ruby"
+  s.homepage      = "http://github.com/chain-engineering/chain-btcruby"
   s.license       = "MIT"
 
 
@@ -19,6 +19,9 @@ Gem::Specification.new do |s|
   s.require_path  = "lib"
 
   s.add_runtime_dependency 'chain-bitcoin-ruby', '0.0.1'
+
+  # TODO: When btcruby is published, uncomment this and remove btcruby from Gemfile.
+  # s.add_runtime_dependency 'btcruby', '0.1.0'
 
   s.add_development_dependency 'rspec', '3.1.0'
   s.add_development_dependency 'byebug', '3.4.0'
