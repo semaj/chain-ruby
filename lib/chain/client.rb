@@ -102,61 +102,67 @@ module Chain
       @conn.get(url)
     end
 
+    def notifications(params={})
+      @conn.get("/#{API_VERSION}/notifications", params)
+    end
+
+    def create_notification(body={})
+      @conn.post("/#{API_VERSION}/notifications/#{type}", body)
+    end
+
+    def delete_notification(id)
+      @conn.delete("/#{API_VERSION}/notifications/#{id}")
+    end
+
+    def test_notification(id)
+      @conn.post("/#{API_VERSION}/notifications/#{id}/test", {})
+    end
+
+    def enable_all_notifications
+      @conn.post("/#{API_VERSION}/notifications/enable_all", {})
+    end
+
+    # Notification Results by notification
+    def notification_results(nid, params={})
+      @conn.get("/#{API_VERSION}/notifications/#{nid}/results", params)
+    end
+
+    # Notification Results by user
+    def results(params={})
+      @conn.get("/#{API_VERSION}/results", params)
+    end
+
+    def result(id)
+      @conn.get("/#{API_VERSION}/results/#{id}")
+    end
+
+    def attempt_result(nid)
+      @conn.post("/#{API_VERSION}/results/#{nid}/attempt", {})
+    end
+
+    # Legacy v1 Webhooks
     def create_webhook(url, id=nil)
-      body = {}
-      body[:url] = url
-      body[:id] = id unless id.nil?
-      @conn.post("/#{API_VERSION}/webhooks", body)
-    end
-    alias_method :create_webhook_url, :create_webhook
+       body = {}
+       body[:url] = url
+       body[:id] = id unless id.nil?
+       @conn.post("/v1/webhooks", body)
+     end
+     alias_method :create_webhook_url, :create_webhook
 
-    def list_webhooks
-      @conn.get("/#{API_VERSION}/webhooks")
-    end
-    alias_method :list_webhook_url, :list_webhooks
+     def list_webhooks
+       @conn.get("/v1/webhooks")
+     end
+     alias_method :list_webhook_url, :list_webhooks
 
-    def update_webhook(id, url)
-      @conn.put("/#{API_VERSION}/webhooks/#{id}", {url: url})
-    end
-    alias_method :update_webhook_url, :update_webhook
+     def update_webhook(id, url)
+       @conn.put("/v1/webhooks/#{id}", {url: url})
+     end
+     alias_method :update_webhook_url, :update_webhook
 
-    def delete_webhook(id)
-      @conn.delete("/#{API_VERSION}/webhooks/#{id}")
-    end
-    alias_method :delete_webhook_url, :delete_webhook
-
-    def create_webhook_event(id, opts={})
-      body = {}
-      body[:event] = opts[:event] || 'address-transaction'
-      body[:block_chain] = opts[:block_chain] || block_chain
-      body[:address] = opts[:address] || raise(ChainError,
-        "Must specify address when creating a Webhook Event.")
-      body[:confirmations] = opts[:confirmations] || 1
-      @conn.post("/#{API_VERSION}/webhooks/#{id}/events", body)
-    end
-
-    def list_webhook_events(id)
-      @conn.get("/#{API_VERSION}/webhooks/#{id}/events")
-    end
-
-    def delete_webhook_event(id, event, address)
-      @conn.delete("/#{API_VERSION}/webhooks/#{id}/events/#{event}/#{address}")
-    end
-
-    # Provide a destination address.
-    # Returns a payment address that will automatically forward to the
-    # destination address when funds are sent to it.
-    # If Webhook parameters are provided, a Webhook event will be created
-    # to notify your server when funds are sent to the payment address.
-    def create_payment_address(dest_addr, body={})
-      body[:destination_address] = dest_addr
-      body[:block_chain] ||= block_chain
-      @conn.post("/#{API_VERSION}/payments", body)
-    end
-
-    def payments
-      @conn.get("/#{API_VERSION}/payments")
-    end
+     def delete_webhook(id)
+       @conn.delete("/v1/webhooks/#{id}")
+     end
+     alias_method :delete_webhook_url, :delete_webhook
 
   end
 end

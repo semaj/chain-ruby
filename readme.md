@@ -15,9 +15,9 @@ require 'chain'
 ```
 
 ## Gemfile
+
 ```
-gem 'chain-ruby', '~> 0.1.2'
-gem 'chain-ruby', '~> 0.2.6pre'
+gem 'chain-ruby', '~> 2.0.0'
 ```
 
 ## Quick Start
@@ -25,13 +25,6 @@ gem 'chain-ruby', '~> 0.2.6pre'
 ```ruby
 require 'chain'
 Chain.get_address('17x23dNjXJLzGMev6R63uyRhMWP1VHawKc')
-```
-
-## API Key
-By default, chain-ruby uses Chain's demo API key. You can get an API key by signing up at https://chain.com. You can use your API key by setting it on the Chain module.
-
-```ruby
-Chain.api_key = 'YOUR-KEY'
 ```
 
 ## Documentation
