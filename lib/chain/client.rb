@@ -107,7 +107,7 @@ module Chain
     end
 
     def create_notification(body={})
-      @conn.post("/#{API_VERSION}/notifications/#{type}", body)
+      @conn.post("/#{API_VERSION}/notifications", body)
     end
 
     def delete_notification(id)
