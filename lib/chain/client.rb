@@ -102,31 +102,20 @@ module Chain
       @conn.get(url)
     end
 
-    # Notifications by user
     def notifications(params={})
       @conn.get("/#{API_VERSION}/notifications", params)
     end
 
-    def create_notification(type, url, opts={})
-      type || 'address-transaction'
-      url || raise(ChainError,
-        "Must specify a Notification URL.")
-      body = {}
-      body[:url] = url
-      body[:block_chain] = opts[:block_chain]
-      body[:address] = opts[:address]
-      body[:transaction_hash] = opts[:transaction_hash]
-      body[:min_confirmations] = opts[:min_confirmations] || 0
-      body[:max_confirmations] = opts[:max_confirmations] || 6
+    def create_notification(body={})
       @conn.post("/#{API_VERSION}/notifications/#{type}", body)
-    end
-
-    def test_notification(id)
-      @conn.post("/#{API_VERSION}/notifications/#{id}/test", {})
     end
 
     def delete_notification(id)
       @conn.delete("/#{API_VERSION}/notifications/#{id}")
+    end
+
+    def test_notification(id)
+      @conn.post("/#{API_VERSION}/notifications/#{id}/test", {})
     end
 
     def enable_all_notifications
