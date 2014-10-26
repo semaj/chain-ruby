@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+require 'bundler/setup'
+Bundler.require :default, :development
+
+require_relative '../lib/chain.rb'
+
+include Chain
+
+require 'irb'
+require 'irb/completion'
+IRB.start

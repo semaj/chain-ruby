@@ -4,39 +4,64 @@
 
 Chain's official Ruby SDK.
 
-## Install
+## Installation with RubyGems
+
+The Chain gem is mirrored on RubyGems. To install it, run the following command:
 
 ```bash
 $ gem install chain-ruby
 ```
 
-```ruby
-require 'chain'
-```
+If you use Bundler, simply add the following line to your Gemfile:
 
-## Gemfile
-```
-gem 'chain-ruby', '~> 0.1.2'
-gem 'chain-ruby', '~> 0.2.6pre'
+```ruby
+gem 'chain-ruby', '~> 0.3.0'
 ```
 
 ## Quick Start
 
+Once you have installed the gem, you can use the Chain module to interact with the Chain API.
+
 ```ruby
 require 'chain'
-Chain.get_address('17x23dNjXJLzGMev6R63uyRhMWP1VHawKc')
+         
+client = Chain::Client.new(
+           key_id: 'YOUR-API-KEY-ID', 
+       key_secret: 'YOUR-API-KEY-SECRET')
+
+client.get_address('17x23dNjXJLzGMev6R63uyRhMWP1VHawKc') #=> array of Chain::AddressStatus objects.
 ```
 
-## API Key
-By default, chain-ruby uses Chain's demo API key. You can get an API key by signing up at https://chain.com. You can use your API key by setting it on the Chain module.
+
+## Configuration for Rails
+
+To configure your API Key ID and API Key Secret for use by Rails, create `config/initializers/chain.rb` and add the following:
 
 ```ruby
-Chain.api_key = 'YOUR-KEY'
+ChainClient = Chain::Client.new(key_id: 'YOUR-API-KEY-ID', 
+                            key_secret: 'YOUR-API-KEY-SECRET')
+```
+
+Then use `ChainClient` to access Chain API like so:
+
+```ruby
+ChainClient.get_address('17x23dNjXJLzGMev6R63uyRhMWP1VHawKc') #=> array of Chain::AddressStatus objects.
+```
+
+
+## API Key
+
+By default, chain-ruby uses Chain's guest API key. It's great for trying library out, but for continuous development and deployment you should get an individual API key and corresponding secret by signing up at https://chain.com. Once you signed up you will be able to specify your key ID and the secret:
+
+```ruby
+ChainClient = Chain::Client.new(key_id: 'YOUR-API-KEY-ID', 
+                            key_secret: 'YOUR-API-KEY-SECRET')
 ```
 
 ## Documentation
 
 The Chain API Documentation is available at [https://chain.com/docs/ruby](https://chain.com/docs/ruby)
+
 
 ## Publishing a Rubygem
 

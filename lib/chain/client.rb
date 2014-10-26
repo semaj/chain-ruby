@@ -1,21 +1,48 @@
 module Chain
   class Client
+    
+    NETWORK_MAINNET = "bitcoin".freeze
+    NETWORK_TESTNET = "testnet3".freeze
+    
+    # Type of Bitcoin network. Default is NETWORK_MAINNET.
+    attr_accessor :network
+    
+    # Base URL to access Chain.com (String or URI instance).
+    attr_accessor :url
+    
+    # String key identifier.
+    attr_accessor :key_id
+    
+    # String key secret.
+    attr_accessor :key_secret
 
-    attr_accessor :block_chain
-
-    # url, key_id, and key_secret can be configured by
-    # passing them in the options hash. Otherwise they will be read
-    # from the environment. Finally, if the environment does not contain
-    # these values they will be filled in the the guest token information.
-    # Guest tokens are limited in their access to the Chain API.
-    def initialize(opts={})
-      url = URI(opts[:url] || Chain.url)
-      key_id = opts[:key_id] || url.user || Chain.url.user
-      key_secret = opts[:key_secret] || url.password || Chain.url.password
-      @block_chain = opts[:block_chain] || Chain.block_chain
-      @conn = Conn.new(url, key_id, key_secret)
+    # `url` specifies a base URL to access Chain.com. If not specified, Chain.default_url is used.
+    # `key_id` specifies your key id. If not specified, 'user' fragment of the `url` 
+    # is used (if present) or GUEST_KEY_ID.
+    # `key_secret` specifies a secret counterpart of the key. If not specified, 'password'
+    # fragment of the `url` is used.
+    # `network` is either NETWORK_MAINNET or NETWORK_TESTNET.
+    # Note: Guest tokens are limited in their access to the Chain API.
+    def initialize(url: nil, key_id: nil, key_secret: nil, network: NETWORK_MAINNET)
+      @url        = URI(url    || Chain.default_url)
+      @key_id     = key_id     || url.user || GUEST_KEY_ID
+      @key_secret = key_secret || url.password
+      @network    = network    || NETWORK_MAINNET
+      @conn = Connection.new(url, key_id, key_secret)
     end
-
+    
+    def url=(url)
+      if url
+        @url = URI(url)
+        @key_id = @url.user if @url.user
+        @key_secret = @url.password if @url.password
+      else
+        @url = nil
+        @key_id = nil
+        @key_secret = nil
+      end
+    end
+    
     # Provide a Bitcoin address.
     # Returns basic details for a Bitcoin address (hash).
     def get_address(address)

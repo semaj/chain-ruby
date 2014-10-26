@@ -1,8 +1,17 @@
 require 'thread'
 
 module Chain
-  class Conn
-
+  class Connection
+    
+    # URI instance specifying a base URL.
+    attr_accessor :url
+    
+    # String key identifier.
+    attr_accessor :key_id
+    
+    # String key secret.
+    attr_accessor :key_secret
+    
     def initialize(url, key_id, key_secret)
       @url = url
       @key_id = key_id
