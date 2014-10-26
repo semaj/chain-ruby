@@ -2,16 +2,16 @@ require 'thread'
 
 module Chain
   class Connection
-    
+
     # URI instance specifying a base URL.
     attr_accessor :url
-    
+
     # String key identifier.
     attr_accessor :key_id
-    
+
     # String key secret.
     attr_accessor :key_secret
-    
+
     def initialize(url, key_id, key_secret)
       @url = url
       @key_id = key_id
@@ -49,7 +49,7 @@ module Chain
         resp_code = Integer(resp.code)
         resp_body = parse_resp(resp)
         if resp_code / 100 != 2
-          raise(ChainError, "#{resp_body['message']}")
+          raise(ChainNetworkError, "#{resp_body['message']}")
         end
         return resp_body
       end
@@ -59,7 +59,7 @@ module Chain
       begin
         JSON.dump(hash)
       rescue => e
-        raise(ChainError, "#{e.message}")
+        raise(ChainFormatError, "#{e.message}")
       end
     end
 
@@ -67,7 +67,7 @@ module Chain
       begin
         JSON.parse(resp.body)
       rescue => e
-        raise(ChainError, "#{e.message}")
+        raise(ChainFormatError, "#{e.message}")
       end
     end
 
@@ -78,7 +78,7 @@ module Chain
           return yield(@conn)
         rescue => e
           @conn = nil
-          raise(ChainError, "#{e.message}")
+          raise(ChainNetworkError, "#{e.message}")
         end
       end
     end
