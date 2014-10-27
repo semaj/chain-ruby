@@ -1,15 +1,17 @@
+require 'btcruby'
+
 require 'net/http'
 require 'net/https'
 require 'json'
 require 'thread'
 require 'uri'
-require 'btcruby'
-require 'ffi' # gem install ffi
+require 'time'
 
 require_relative 'chain/errors.rb'
 require_relative 'chain/address_info.rb'
 require_relative 'chain/client.rb'
 require_relative 'chain/connection.rb'
+require_relative 'chain/transaction.rb'
 
 # A module that wraps the Chain SDK.
 module Chain
@@ -38,7 +40,12 @@ module Chain
     @default_url ||= URI(ENV['CHAIN_URL'] || CHAIN_URL)
   end
 
-  # Chain.default_client allows accessing default client configuration via global Chain instance.
+end
+
+# Default client access via Chain module.
+module Chain
+
+  # Default client to which messages will be forwarded.
   def self.default_client=(c)
     @default_client = c
   end
@@ -48,7 +55,6 @@ module Chain
   end
 
   def self.method_missing(sym, *args, &block)
-    default_client.send(sym, *args, &block)
+    self.default_client.send(sym, *args, &block)
   end
-
 end
