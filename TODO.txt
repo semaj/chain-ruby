@@ -3,6 +3,8 @@ TODO:
 - transactions API needs coinbase inputs support
 - transactions API does not provide raw hex signature scripts (problems with ambiguity and non-canonical pushdatas)
 
+- replace all .to_i calls into actual type-checking helper calls that raise ChainFormatError if unexpected type occured.
+
 - implement transactions API
 - implement transactions_op_return API
 - implement transaction_broadcast API
