@@ -155,8 +155,6 @@ module Chain
 
         # Check that hash of the resulting tx is the same as received one.
         if tx.transaction_hash != received_hash
-          puts dict["hash"]
-          puts tx.transaction_id
           raise ChainFormatError, "Cannot build exact copy of a transaction from JSON response"
         end
 
