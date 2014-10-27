@@ -1,0 +1,14 @@
+TODO:
+
+- transactions API needs coinbase inputs support
+- transactions API does not provide raw hex signature scripts (problems with ambiguity and non-canonical pushdatas)
+
+- implement transactions API
+- implement transactions_op_return API
+- implement transaction_broadcast API
+- implement blocks API
+- implement block_op_return API
+- update transaction_builder API
+- port Sweeper to using BTC::TransactionBuilder
+
+
