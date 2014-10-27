@@ -3,7 +3,7 @@ require_relative 'spec_helper'
 describe "Address Unspents API" do
 
   before do
-    @client = Chain::Client.new(key_id: "2277e102b5d28a90700ff3062a282228", key_secret: "5612b8724d3b3cbfb580a2c3e5b072a7")
+    @client = Chain::Client.new(api_key_id: "2277e102b5d28a90700ff3062a282228", api_key_secret: "5612b8724d3b3cbfb580a2c3e5b072a7")
     @client.network = Chain::NETWORK_MAINNET
   end
 

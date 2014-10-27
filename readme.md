@@ -25,8 +25,8 @@ Once you have installed the gem, you can use the Chain module to interact with t
 ```ruby
 require 'chain'
 
-Chain.key_id = 'YOUR-API-KEY-ID'
-Chain.key_secret = 'YOUR-API-KEY-SECRET'
+Chain.api_key_id = 'YOUR-API-KEY-ID'
+Chain.api_key_secret = 'YOUR-API-KEY-SECRET'
 
 Chain.get_address('17x23dNjXJLzGMev6R63uyRhMWP1VHawKc') #=> array of Chain::AddressStatus objects.
 ```
@@ -38,8 +38,8 @@ To configure your API Key ID and API Key Secret for use by Rails,
 create `config/initializers/chain.rb` and add the following:
 
 ```ruby
-Chain.key_id = 'YOUR-API-KEY-ID'
-Chain.key_secret = 'YOUR-API-KEY-SECRET'
+Chain.api_key_id = 'YOUR-API-KEY-ID'
+Chain.api_key_secret = 'YOUR-API-KEY-SECRET'
 ```
 
 Then use `Chain` to access Chain API like so:
@@ -58,8 +58,8 @@ a corresponding secret by signing up at https://chain.com.
 Once you signed up you will be able to specify your key ID and the secret:
 
 ```ruby
-Chain.key_id = 'YOUR-API-KEY-ID'
-Chain.key_secret = 'YOUR-API-KEY-SECRET'
+Chain.api_key_id = 'YOUR-API-KEY-ID'
+Chain.api_key_secret = 'YOUR-API-KEY-SECRET'
 ```
 
 
@@ -70,8 +70,8 @@ then instead of using `Chain` object directly, create your own `Chain::Client` i
 
 ```ruby
 client = Chain::Client.new
-client.key_id = 'YOUR-API-KEY-ID'
-client.key_secret = 'YOUR-API-KEY-SECRET'
+client.api_key_id = 'YOUR-API-KEY-ID'
+client.api_key_secret = 'YOUR-API-KEY-SECRET'
 client.network = Chain::NETWORK_TESTNET
 
 client.get_address('17x23dNjXJLzGMev6R63uyRhMWP1VHawKc')

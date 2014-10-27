@@ -10,30 +10,30 @@ module Chain
     attr_accessor :url
 
     # String key identifier.
-    attr_accessor :key_id
+    attr_accessor :api_key_id
 
     # String key secret.
-    attr_accessor :key_secret
+    attr_accessor :api_key_secret
 
     # `url` specifies a base URL to access Chain.com. If not specified, Chain.default_url is used.
-    # `key_id` specifies your key id. If not specified, 'user' fragment of the `url`
+    # `api_key_id` specifies your key id. If not specified, 'user' fragment of the `url`
     # is used (if present) or GUEST_KEY_ID.
-    # `key_secret` specifies a secret counterpart of the key. If not specified, 'password'
+    # `api_key_secret` specifies a secret counterpart of the key. If not specified, 'password'
     # fragment of the `url` is used.
     # `network` is either NETWORK_MAINNET or NETWORK_TESTNET.
     # Note: Guest tokens are limited in their access to the Chain API.
-    def initialize(url: nil, key_id: nil, key_secret: nil, network: NETWORK_MAINNET)
-      @url        = URI(url    || Chain.default_url)
-      @key_id     = key_id     || url.user || GUEST_KEY_ID
-      @key_secret = key_secret || url.password
-      @network    = network    || NETWORK_MAINNET
-      @conn = Connection.new(@url, @key_id, @key_secret)
+    def initialize(url: nil, api_key_id: nil, api_key_secret: nil, network: NETWORK_MAINNET)
+      @url            = URI(url    || Chain.default_url)
+      @api_key_id     = api_key_id     || url.user || GUEST_KEY_ID
+      @api_key_secret = api_key_secret || url.password
+      @network        = network    || NETWORK_MAINNET
+      @conn = Connection.new(@url, @api_key_id, @api_key_secret)
     end
 
     def url=(url)
       @url = url ? URI(url) : nil
-      @key_id = @url.user if @url && @url.user
-      @key_secret = @url.password if @url && @url.password
+      @api_key_id = @url.user if @url && @url.user
+      @api_key_secret = @url.password if @url && @url.password
     end
 
     # Returns an AddressInfo object describing a given address (BTC::Address or string in Base58Check format)

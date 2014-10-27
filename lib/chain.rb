@@ -51,7 +51,7 @@ module Chain
   end
 
   def self.default_client
-    @default_client ||= Client.new(url: default_url, key_id: GUEST_KEY_ID)
+    @default_client ||= Client.new(url: default_url, api_key_id: GUEST_KEY_ID)
   end
 
   def self.method_missing(sym, *args, &block)

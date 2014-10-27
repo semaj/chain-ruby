@@ -7,15 +7,15 @@ module Chain
     attr_accessor :url
 
     # String key identifier.
-    attr_accessor :key_id
+    attr_accessor :api_key_id
 
     # String key secret.
-    attr_accessor :key_secret
+    attr_accessor :api_key_secret
 
-    def initialize(url, key_id, key_secret)
+    def initialize(url, api_key_id, api_key_secret)
       @url = url
-      @key_id = key_id
-      @key_secret = key_secret
+      @api_key_id = api_key_id
+      @api_key_secret = api_key_secret
       @conn_mutex = Mutex.new
     end
 
@@ -41,7 +41,7 @@ module Chain
     def make_req!(type, path, body=nil)
       conn do |c|
         req = type.new(@url.request_uri + path)
-        req.basic_auth(@key_id, @key_secret)
+        req.basic_auth(@api_key_id, @api_key_secret)
         req['Content-Type'] = 'application/json'
         req['User-Agent'] = 'chain-ruby/0'
         req.body = body
