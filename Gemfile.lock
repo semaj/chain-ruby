@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    chain-ruby (0.2.4pre)
+    chain-ruby (2.0.1)
       chain-bitcoin-ruby (= 0.0.1)
 
 GEM

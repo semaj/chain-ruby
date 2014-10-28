@@ -76,11 +76,35 @@ module Chain
       @conn.get("/#{API_VERSION}/#{block_chain}/transactions/#{hash}/op-return")
     end
 
-    # Provide a hex encoded, signed transaction.
+    def transact(args)
+      key_coll = Signer.parse_inputs(args[:inputs])
+      args[:inputs] = key_coll.keys.map {|a| {address: a}}
+      template = build_transaction(args)
+      signed_template = Signer.sign(template, key_coll)
+      send_transaction(signed_template)
+    end
+
+    def sign_template(template, keys)
+      key_coll = Signer.parse_inputs(keys)
+      Signer.sign(template, key_coll)
+    end
+
+    # Provide a hex encoded, signed transaction -or- unsigned transaction Chain input array.
     # Returns the newly created Bitcoin transaction hash (string).
-    def send_transaction(hex)
-      r = @conn.put("/#{API_VERSION}/#{block_chain}/transactions", {hex: hex})
-      r["transaction_hash"]
+    def send_transaction(body)
+      body = {signed_hex: body} if body.is_a? String
+      @conn.post("/#{API_VERSION}/#{block_chain}/transactions/send", body)
+    end
+
+    def build_transaction(args)
+      body = {
+        inputs: args[:inputs],
+        outputs: args[:outputs],
+        miner_fee_rate: args[:miner_fee_rate],
+        change_address: args[:change_address],
+        min_confirmations: args[:min_confirmations]
+      }
+      @conn.post("/#{API_VERSION}/#{block_chain}/transactions/build", body)
     end
 
     # Provide a Bitcoin block hash or height.
