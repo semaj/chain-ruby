@@ -43,7 +43,7 @@ module Chain
         resp_code = Integer(resp.code)
         resp_body = parse_resp(resp)
         if resp_code / 100 != 2
-          raise(ChainError, "#{resp_body['message']}")
+          raise ChainError, resp_body['message'].to_s
         end
         return resp_body
       end
@@ -53,7 +53,7 @@ module Chain
       begin
         JSON.dump(hash)
       rescue => e
-        raise(ChainError, "#{e.message}")
+        raise ChainError.exception(e)
       end
     end
 
@@ -63,7 +63,7 @@ module Chain
           r.headers = resp.to_hash
         end
       rescue => e
-        raise(ChainError, "#{e.message}")
+        raise ChainError.exception(e)
       end
     end
 
@@ -74,7 +74,7 @@ module Chain
           return yield(@conn)
         rescue => e
           @conn = nil
-          raise(ChainError, "#{e.message}")
+          raise ChainError.exception(e)
         end
       end
     end

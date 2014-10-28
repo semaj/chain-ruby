@@ -11,6 +11,7 @@ module Chain
   autoload :Client, 'chain/client'
   autoload :Conn, 'chain/conn'
   autoload :APIEnumerator, 'chain/api_enumerator'
+  autoload :ChainError, 'chain/chain_error'
 
   GUEST_KEY = 'GUEST-TOKEN'
   CHAIN_URL = 'https://api.chain.com'
@@ -21,10 +22,6 @@ module Chain
   # Prefixed in the path of HTTP requests.
   API_VERSION = 'v2'
   BLOCK_CHAIN = 'bitcoin'
-
-  # Raised when an unexpected error occurs in either
-  # the HTTP request or the parsing of the response body.
-  ChainError = Class.new(StandardError)
 
   def self.default_client=(c)
     @default_client = c
