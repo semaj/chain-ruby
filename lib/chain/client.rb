@@ -141,7 +141,7 @@ module Chain
     end
 
     def retry_all_results
-      @conn.post("/#{API_VERSION}/results/retry_all")
+      @conn.post("/#{API_VERSION}/results/retry_all", {})
     end
 
     # Legacy v1 Webhooks
