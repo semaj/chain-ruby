@@ -140,6 +140,10 @@ module Chain
       @conn.post("/#{API_VERSION}/results/#{nid}/attempt", {})
     end
 
+    def retry_all_results
+      @conn.post("/#{API_VERSION}/results/retry_all")
+    end
+
     # Legacy v1 Webhooks
     def create_webhook(url, id=nil)
        body = {}
