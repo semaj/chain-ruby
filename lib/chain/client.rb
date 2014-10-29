@@ -122,6 +122,10 @@ module Chain
       @conn.post("/#{API_VERSION}/notifications/enable_all", {})
     end
 
+    def enable_notification
+      @conn.post("/#{API_VERSION}/notifications/enable", {})
+    end
+
     # Notification Results by notification
     def notification_results(nid, params={})
       @conn.get("/#{API_VERSION}/notifications/#{nid}/results", params)
