@@ -122,8 +122,8 @@ module Chain
       @conn.post("/#{API_VERSION}/notifications/enable_all", {})
     end
 
-    def enable_notification
-      @conn.post("/#{API_VERSION}/notifications/enable", {})
+    def enable_notification(nid)
+      @conn.post("/#{API_VERSION}/notifications/#{nid}/enable", {})
     end
 
     # Notification Results by notification
@@ -140,8 +140,8 @@ module Chain
       @conn.get("/#{API_VERSION}/results/#{id}")
     end
 
-    def attempt_result(nid)
-      @conn.post("/#{API_VERSION}/results/#{nid}/attempt", {})
+    def attempt_result(rid)
+      @conn.post("/#{API_VERSION}/results/#{rid}/attempt", {})
     end
 
     def retry_all_results
