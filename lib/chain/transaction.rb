@@ -8,7 +8,54 @@ module BTC
     # Note that transactions confirmed prior to June 2014 will have this value = nil.
     # Therefore, when sorting transactions by this time, you should fall back on `block_time`.
     attr_accessor :chain_received_at
-  end
+
+    def self.with_chain_dictionary(dict)
+      tx = BTC::Transaction.new
+
+      received_hash = BTC::Transaction.hash_from_id(dict["hash"])
+
+      dict["inputs"].each do |input_dict|
+        parts = input_dict["script_signature"].split(" ").map do |part|
+          if part.to_i.to_s == part # support "0" prefix.
+            BTC::Opcode.opcode_for_small_integer(part.to_i)
+          else
+            BTC::Data.data_from_hex(part)
+          end
+        end
+        txin = BTC::TransactionInput.new
+        txin.previous_hash = BTC::Transaction.hash_from_id(input_dict["output_hash"])
+        txin.previous_index = input_dict["output_index"].to_i
+        # TODO: this API does not seem to support coinbase data properly
+        # TODO: this API also is not 100% robust as we have to parse a fuzzy string representation of the script.
+        txin.addresses = (input_dict["addresses"] || []).map{|a| BTC::Address.with_string(a) }
+        txin.signature_script = (BTC::Script.new << parts)
+        txin.value = input_dict["value"].to_i
+        tx.add_input(txin)
+      end
+
+      dict["outputs"].each do |output_dict|
+        txout = BTC::TransactionOutput.new
+        txout.value = output_dict["value"].to_i
+        txout.script = BTC::Script.with_data(BTC::Data.data_from_hex(output_dict["script_hex"]))
+        txout.spent = output_dict["spent"]
+        txout.addresses = (output_dict["addresses"] || []).map{|a| BTC::Address.with_string(a) }
+        tx.add_output(txout)
+      end
+
+      # Check that hash of the resulting tx is the same as received one.
+      if tx.transaction_hash != received_hash
+        raise ChainFormatError, "Cannot build exact copy of a transaction from JSON response"
+      end
+
+      tx.block_hash = BTC::Transaction.hash_from_id(dict["block_hash"]) # block hash is reversed hex like txid.
+      tx.block_height = dict["block_height"].to_i
+      tx.block_time = dict["block_time"] ? Time.parse(dict["block_time"]) : nil
+      tx.confirmations = dict["confirmations"].to_i
+      tx.fee = dict["fees"] ? dict["fees"].to_i : nil
+      tx.chain_received_at = dict["chain_received_at"] ? Time.parse(dict["chain_received_at"]) : nil
+      tx
+    end
+  end # BTC::Transaction
 end
 
 

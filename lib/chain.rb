@@ -9,9 +9,12 @@ require 'time'
 
 require_relative 'chain/errors.rb'
 require_relative 'chain/address_info.rb'
+require_relative 'chain/op_return_info.rb'
 require_relative 'chain/client.rb'
 require_relative 'chain/connection.rb'
 require_relative 'chain/transaction.rb'
+require_relative 'chain/transaction_input.rb'
+require_relative 'chain/transaction_output.rb'
 
 # A module that wraps the Chain SDK.
 module Chain

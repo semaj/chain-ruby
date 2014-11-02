@@ -18,7 +18,21 @@ describe "Address Transactions API" do
       expect(tx.block_time.month).to eq 5
       expect(tx.chain_received_at.month).to eq 6
       expect(tx.inputs.size).to eq 1
+      tx.inputs.each do |txin|
+        txin.addresses.each do |inaddr|
+          expect(inaddr).to be_a_kind_of(BTC::Address)
+        end
+        expect(txin.addresses.map{|a|a.to_s}).to eq ["3L7dKYQGNoZub928CJ8NC2WfrM8U8GGBjr"]
+        expect(txin.value).to be > 0
+      end
       expect(tx.outputs.size).to eq 1
+      tx.outputs.each do |txout|
+        txout.addresses.each do |outaddr|
+          expect(outaddr).to be_a_kind_of(BTC::Address)
+        end
+        expect(txout.addresses.map{|a|a.to_s}).to eq ["1K4nPxBMy6sv7jssTvDLJWk1ADHBZEoUVb"]
+        expect(txout.value).to be > 0
+      end
       expect(tx.inputs_amount).to eq(290000 + 10000)
       expect(tx.fee).to eq(10000)
     end

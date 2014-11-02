@@ -106,7 +106,6 @@ module Chain
     #
     # Each output (BTC::TransactionOutput) contains an additional property `spent` which is true or false depending on
     # whether the output is spent in any known (including unconfirmed) transaction.
-    #
     def get_address_transactions(address, limit: DEFAULT_TRANSACTIONS_LIMIT)
       get_addresses_transactions([address], limit: limit)
     end
@@ -123,62 +122,42 @@ module Chain
       url = "/#{API_VERSION}/#{network}/addresses/#{addrs}/transactions"
       array = @conn.get(url, {limit: limit})
       array.map do |dict|
-        tx = BTC::Transaction.new
-
-        received_hash = BTC::Transaction.hash_from_id(dict["hash"])
-
-        dict["inputs"].each do |input_dict|
-          parts = input_dict["script_signature"].split(" ").map do |part|
-            if part.to_i.to_s == part # support "0" prefix.
-              BTC::Opcode.opcode_for_small_integer(part.to_i)
-            else
-              BTC::Data.data_from_hex(part)
-            end
-          end
-          txin = BTC::TransactionInput.new
-          txin.previous_hash = BTC::Transaction.hash_from_id(input_dict["output_hash"])
-          txin.previous_index = input_dict["output_index"].to_i
-          # TODO: this API does not seem to support coinbase data properly
-          # TODO: this API also is not 100% robust as we have to parse a fuzzy string representation of the script.
-          txin.signature_script = (BTC::Script.new << parts)
-          txin.value = input_dict["value"].to_i
-          tx.add_input(txin)
-        end
-
-        dict["outputs"].each do |output_dict|
-          txout = BTC::TransactionOutput.new
-          txout.value = output_dict["value"].to_i
-          txout.script = BTC::Script.with_data(BTC::Data.data_from_hex(output_dict["script_hex"]))
-          txout.spent = output_dict["spent"]
-          tx.add_output(txout)
-        end
-
-        # Check that hash of the resulting tx is the same as received one.
-        if tx.transaction_hash != received_hash
-          raise ChainFormatError, "Cannot build exact copy of a transaction from JSON response"
-        end
-
-        tx.block_hash = BTC::Transaction.hash_from_id(dict["block_hash"]) # block hash is reversed hex like txid.
-        tx.block_height = dict["block_height"].to_i
-        tx.block_time = dict["block_time"] ? Time.parse(dict["block_time"]) : nil
-        tx.confirmations = dict["confirmations"].to_i
-        tx.fee = dict["fees"] ? dict["fees"].to_i : nil
-        tx.chain_received_at = dict["chain_received_at"] ? Time.parse(dict["chain_received_at"]) : nil
-        tx
+        BTC::Transaction.with_chain_dictionary(dict)
       end
     end
 
-    # Provide a Bitcoin address.
-    # Returns all op_return data associated with address.
+    # Returns list of OpReturnInfo objects describing OP_RETURN outputs for a given address.
+    # Address could be a String in Base58Check format or a BTC::Address instance.
     def get_address_op_returns(address)
+      address = address.to_s
       url = "/#{API_VERSION}/#{network}/addresses/#{address}/op-returns"
-      @conn.get(url)
+      list = @conn.get(url)
+      list.map do |dict|
+        OpReturnInfo.new(dictionary: dict)
+      end
     end
 
-    # Provide a Bitcoin transaction.
-    # Returns basic details for a Bitcoin transaction (hash).
-    def get_transaction(hash)
-      @conn.get("/#{API_VERSION}/#{network}/transactions/#{hash}")
+    # Returns BTC::Transaction instance for a given transaction ID (reversed hex hash).
+    # Transaction instance has these additional informational properties:
+    # `block_hash` — the binary hash of the block containing the transaction.
+    # `block_height` – the height of the block containing the transaction.
+    #  The height of a block is the distance from the first block in the chain (height = 0).
+    #  Contains nil for unconfirmed transactions.
+    # `block_time` — the UTC time (Time object) at which the block containing the transaction was created by the miner.
+    #  Contains nil for unconfirmed transactions.
+    # `confirmations` - number of confirmations. 0 for unconfirmed transactions.
+    # `amount` — The total amount of the transaction in satoshis.
+    #  This is equal to total of all output values (or the total of all input values minus the miner fees).
+    # `fees` — The total fees paid to the miner in satoshis. This is not included in the transaction `amount`.
+    # `chain_received_at` — The UTC time at which Chain.com indexed this transaction.
+    #  Note that transactions confirmed prior to June 2014 will have this value = nil.
+    #  Therefore, when sorting transactions by this time, you should fall back on `block_time`.
+    #
+    # Each output (BTC::TransactionOutput) contains an additional property `spent` which is true or false depending on
+    # whether the output is spent in any known (including unconfirmed) transaction.
+    def get_transaction(txid)
+      dict = @conn.get("/#{API_VERSION}/#{network}/transactions/#{txid}")
+      BTC::Transaction.with_chain_dictionary(dict)
     end
 
     # Provide a Bitcoin transaction.

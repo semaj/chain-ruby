@@ -31,7 +31,6 @@ Chain.api_key_secret = 'YOUR-API-KEY-SECRET'
 Chain.get_address('17x23dNjXJLzGMev6R63uyRhMWP1VHawKc') #=> array of Chain::AddressStatus objects.
 ```
 
-
 ## Configuration for Rails
 
 To configure your API Key ID and API Key Secret for use by Rails, 
@@ -76,7 +75,6 @@ client.network = Chain::NETWORK_TESTNET
 
 client.get_address('17x23dNjXJLzGMev6R63uyRhMWP1VHawKc')
 ```
-
 
 ## Documentation
 
