@@ -49,7 +49,7 @@ module Chain
         resp_code = Integer(resp.code)
         resp_body = parse_resp(resp)
         if resp_code / 100 != 2
-          raise(ChainNetworkError, "#{resp_body['message']}")
+          raise(ChainNetworkError.new("#{resp_body['message']}", resp_code, resp_body['code']))
         end
         return resp_body
       end
@@ -76,9 +76,12 @@ module Chain
       @conn_mutex.synchronize do
         begin
           return yield(@conn)
-        rescue => e
+        rescue ChainError => e # if it's our error, pass it as-is.
           @conn = nil
-          raise(ChainNetworkError, "#{e.message}")
+          raise e
+        rescue => e # any other error (socket failure etc) is wrapped in ChainNetworkError.
+          @conn = nil
+          raise(ChainNetworkError, "#{e.message} (#{e.class})")
         end
       end
     end
