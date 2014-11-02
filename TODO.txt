@@ -6,7 +6,7 @@ TODO:
 - replace all .to_i calls into actual type-checking helper calls that raise ChainFormatError if unexpected type occured.
 
 + implement address op_return API
-- implement transactions API
++ implement transactions API
 - implement transactions_op_return API
 - implement transaction_broadcast API
 - implement blocks API

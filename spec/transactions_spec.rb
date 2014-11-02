@@ -19,8 +19,16 @@ describe "Transactions API" do
       txin.addresses.each do |inaddr|
         expect(inaddr).to be_a_kind_of(BTC::Address)
       end
-      #expect(txin.addresses.map{|a|a.to_s}).to eq ["3L7dKYQGNoZub928CJ8NC2WfrM8U8GGBjr"]
     end
+    expect(tx.inputs.map(&:addresses).flatten.map(&:to_s)).to eq %w[
+      1FgPk71oB7Bdwzu67nqjKbCi5c1BTMB1en
+      18Kp5Fm8ov1xhBsnwAGeVDshGyRgrNqK9T
+      18Kp5Fm8ov1xhBsnwAGeVDshGyRgrNqK9T
+    ]
+    expect(tx.outputs.map(&:addresses).flatten.map(&:to_s)).to eq %w[
+      18LdfobPPt5cM3TvtRWXXithpNtjMWqHnQ
+      142V1XwCc72F1FPyF8mwAENiKvhMA1kaHu
+    ]
     expect(tx.outputs.size).to eq 2
     expect(tx.inputs_amount).to eq(38340652 + 52900438 + 100240048)
     expect(tx.fee).to eq(0)
