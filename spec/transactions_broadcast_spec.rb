@@ -9,8 +9,41 @@ describe "Transaction broadcast API" do
 
   it "should broadcast a valid transaction" do
 
-    # TODO: fetch unspents for some testnet address and spend them.
+    # Note: this key has some testcoins to be spendable each time this test runs.
+    # Please do not remove coins from here. Thank you!
+    key = BTC::Key.with_private_key(BTC::Data.data_from_hex("c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a"), public_key_compressed: true)
+    address = key.testnet_address
+    expect(address.to_s).to eq("mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV")
 
+    # 1. Fetch unspents for this key
+    utxos = @client.get_address_unspents(address)
+    fee = 1
+    utxos = utxos.find_all{|utxo| utxo.value >= 2*fee }
+
+    if utxos.size > 0
+
+      # 2. Compose tx spending one of the unspents to the same address with 0 fees.
+      utxo = utxos.first
+      tx = BTC::Transaction.new
+      tx.add_input(BTC::TransactionInput.new(
+        previous_hash: utxo.transaction_hash,
+        previous_index: utxo.index,
+        signature_script: utxo.script
+      ))
+      tx.add_output(BTC::TransactionOutput.new(value: utxo.value - fee, script: address.script))
+
+      # 3. Sign the transaction
+      sighash = tx.signature_hash(input_index: 0, output_script: tx.outputs.first.script, hash_type: BTC::SIGHASH_ALL)
+      tx.inputs.first.signature_script = (BTC::Script.new <<
+        (key.ecdsa_signature(sighash) + BTC::WireFormat.encode_uint8(BTC::SIGHASH_ALL)) <<
+        key.public_key)
+
+      # 4. Broadcast it. Succesful broadcast returns tx id.
+      expect(@client.send_transaction(tx)).to eq(tx.transaction_id)
+    else
+      puts "WARNING: not enough funds on #{address.to_s} to run broadcast spec. Please send some coins there using http://tpfaucet.appspot.com/."
+      # Note: we are not failing this spec so we don't get DoS on our build integration tests.
+    end
   end
 
 end

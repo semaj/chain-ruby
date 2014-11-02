@@ -5,13 +5,12 @@ TODO for Chain:
 
 TODO:
 - replace all .to_i calls into actual type-checking helper calls that raise ChainFormatError if unexpected type occured.
-- add specs for testnet broadcasting
 - implement blocks API
 - implement block_op_return API
 - update transaction_builder API
 - port Sweeper to using BTC::TransactionBuilder
 
-
++ add specs for testnet broadcasting
 + implement various address-specific APIs
 + implement address op_return API
 + implement transactions API

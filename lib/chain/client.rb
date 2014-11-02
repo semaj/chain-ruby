@@ -36,6 +36,14 @@ module Chain
       @api_key_secret = @url.password if @url && @url.password
     end
 
+    def testnet?
+      @network == NETWORK_TESTNET
+    end
+
+    def mainnet?
+      @network == NETWORK_MAINNET
+    end
+
     # Returns an AddressInfo object describing a given address (BTC::Address or string in Base58Check format)
     def get_address(address)
       get_addresses([address]).first
