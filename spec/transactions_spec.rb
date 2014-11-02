@@ -33,4 +33,5 @@ describe "Transactions API" do
     expect(tx.inputs_amount).to eq(38340652 + 52900438 + 100240048)
     expect(tx.fee).to eq(0)
   end
+
 end

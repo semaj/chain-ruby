@@ -126,7 +126,7 @@ module Chain
       end
     end
 
-    # Returns list of OpReturnInfo objects describing OP_RETURN outputs for a given address.
+    # Returns an array of OpReturnInfo objects describing OP_RETURN outputs for a given address.
     # Address could be a String in Base58Check format or a BTC::Address instance.
     def get_address_op_returns(address)
       address = address.to_s
@@ -157,21 +157,49 @@ module Chain
     # whether the output is spent in any known (including unconfirmed) transaction.
     def get_transaction(txid)
       dict = @conn.get("/#{API_VERSION}/#{network}/transactions/#{txid}")
-      BTC::Transaction.with_chain_dictionary(dict)
+      return BTC::Transaction.with_chain_dictionary(dict)
     end
 
-    # Provide a Bitcoin transaction.
-    # Returns the OP_RETURN string (if it exists) for a Bitcoin
-    # transaction(hash).
-    def get_transaction_op_return(hash)
-      @conn.get("/#{API_VERSION}/#{network}/transactions/#{hash}/op-return")
+    # Returns a single OpReturnInfo object for a given transaction (identified by transaction ID)
+    # Returns nil if transaction does not have an OP_RETURN output.
+    def get_transaction_op_return(txid)
+      # curl https://api.chain.com/v2/bitcoin/transactions/4a7d62a4a5cc912605c46c6a6ef6c4af451255a453e6cbf2b1022766c331f803/op-return?api-key-id=DEMO-4a5e1e4
+      # => {"transaction_hash":"4a7d62a4a5cc912605c46c6a6ef6c4af451255a453e6cbf2b1022766c331f803",
+      #     "hex":"436861696e2e636f6d202d2054686520426c6f636b20436861696e20415049",
+      #     "text":"Chain.com - The Block Chain API",
+      #     "receiver_addresses":["1Bj5UVzWQ84iBCUiy5eQ1NEfWfJ4a3yKG1"],
+      #     "sender_addresses":["1Bj5UVzWQ84iBCUiy5eQ1NEfWfJ4a3yKG1"]}
+      # curl https://api.chain.com/v2/bitcoin/transactions/0f40015ddbb8a05e26bbacfb70b6074daa1990b813ba9bc70b7ac5b0b6ee2c45/op-return?api-key-id=DEMO-4a5e1e4
+      # => {"message":"Unable to find transaction.","code":"CH201"}
+      dict = @conn.get("/#{API_VERSION}/#{network}/transactions/#{txid}/op-return")
+      if dict["transaction_hash"]
+        return OpReturnInfo.new(dictionary: dict)
+      else
+        return nil
+      end
     end
 
-    # Provide a hex encoded, signed transaction.
-    # Returns the newly created Bitcoin transaction hash (string).
-    def send_transaction(hex)
-      r = @conn.put("/#{API_VERSION}/#{network}/transactions", {hex: hex})
-      r["transaction_hash"]
+    # Broadcasts a transaction (BTC::Transaction instance) to the Bitcoin network.
+    # Returns the newly created Bitcoin transaction id or raises ChainBroadcastError if
+    # transaction is malformed, invalid or contains non-canonical data.
+    def send_transaction(tx)
+      hex = BTC::Data.hex_from_data(tx.data)
+      begin
+        r = @conn.put("/#{API_VERSION}/#{network}/transactions", {hex: hex})
+        # In case of rejection, this is what returned with 400 code:
+        # {"message":"Transaction rejected.","code":"CH202"}
+        if txid = r["transaction_hash"]
+          return txid
+        else
+          raise ChainBroadcastError, ((r ? r["message"] : nil) || "Unknown error")
+        end
+      rescue ChainNetworkError => e
+        if e.http_code == 400 # if it's a rejection error, wrap in 'broadcast error'
+          raise ChainBroadcastError, e.message
+        else
+          raise e
+        end
+      end
     end
 
     # Provide a Bitcoin block hash or height.
@@ -192,6 +220,12 @@ module Chain
       url = "/#{API_VERSION}/#{network}/blocks/#{hash_or_height}/op-returns"
       @conn.get(url)
     end
+
+
+
+    # Webhooks
+    # ========
+
 
     def create_webhook(url, id=nil)
       body = {}
