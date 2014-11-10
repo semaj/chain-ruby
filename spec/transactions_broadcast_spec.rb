@@ -22,7 +22,7 @@ describe "Transaction broadcast API" do
 
     if utxos.size > 0
 
-      # 2. Compose tx spending one of the unspents to the same address with 0 fees.
+      # 2. Compose tx spending one of the unspents to the same address with some fees.
       utxo = utxos.first
       tx = BTC::Transaction.new
       tx.add_input(BTC::TransactionInput.new(
