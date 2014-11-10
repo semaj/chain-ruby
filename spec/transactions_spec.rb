@@ -9,7 +9,7 @@ describe "Transactions API" do
 
   it "should get info about one transaction" do
     tx = @client.get_transaction('0f40015ddbb8a05e26bbacfb70b6074daa1990b813ba9bc70b7ac5b0b6ee2c45')
-    expect(tx.block_hash).to eq(BTC::Transaction.hash_from_id("0000000000000000284bc285e23f970189d048ff38c030aa51007e2a8c2af2f0"))
+    expect(tx.block_hash).to eq(BTC.hash_from_id("0000000000000000284bc285e23f970189d048ff38c030aa51007e2a8c2af2f0"))
     expect(tx.block_height).to eq 305188
     expect(tx.block_time.month).to eq 6
     expect(tx.chain_received_at.month).to eq 6

@@ -18,7 +18,7 @@ describe "Transaction OP_RETURN API" do
     # }
     info = @client.get_transaction_op_return('4a7d62a4a5cc912605c46c6a6ef6c4af451255a453e6cbf2b1022766c331f803')
     expect(info).to be_a_kind_of(Chain::OpReturnInfo)
-    expect(info.transaction_hash).to eq(BTC::Transaction.hash_from_id("4a7d62a4a5cc912605c46c6a6ef6c4af451255a453e6cbf2b1022766c331f803"))
+    expect(info.transaction_hash).to eq(BTC.hash_from_id("4a7d62a4a5cc912605c46c6a6ef6c4af451255a453e6cbf2b1022766c331f803"))
     expect(info.transaction_id).to eq("4a7d62a4a5cc912605c46c6a6ef6c4af451255a453e6cbf2b1022766c331f803")
     expect(info.data).to be_a_kind_of(String)
     expect(info.data).to eq("Chain.com - The Block Chain API")

@@ -12,23 +12,28 @@ module BTC
     def self.with_chain_dictionary(dict)
       tx = BTC::Transaction.new
 
-      received_hash = BTC::Transaction.hash_from_id(dict["hash"])
+      received_hash = BTC.hash_from_id(dict["hash"])
 
       dict["inputs"].each do |input_dict|
-        parts = input_dict["script_signature"].split(" ").map do |part|
-          if part.to_i.to_s == part # support "0" prefix.
-            BTC::Opcode.opcode_for_small_integer(part.to_i)
-          else
-            BTC::Data.data_from_hex(part)
-          end
-        end
         txin = BTC::TransactionInput.new
-        txin.previous_hash = BTC::Transaction.hash_from_id(input_dict["output_hash"])
-        txin.previous_index = input_dict["output_index"].to_i
-        # TODO: this API does not seem to support coinbase data properly
+        txin.previous_hash = BTC.hash_from_id(input_dict["output_hash"]) if input_dict["output_hash"]
+        txin.previous_index = input_dict["output_index"].to_i if input_dict["output_index"]
+
         # TODO: this API also is not 100% robust as we have to parse a fuzzy string representation of the script.
         txin.addresses = (input_dict["addresses"] || []).map{|a| BTC::Address.with_string(a) }
-        txin.signature_script = (BTC::Script.new << parts)
+        
+        if !input_dict["script_signature"] && input_dict["coinbase"]
+          txin.coinbase_data = BTC::Data.data_from_hex(input_dict["coinbase"])
+        else
+          parts = input_dict["script_signature"].split(" ").map do |part|
+            if part.to_i.to_s == part # support "0" prefix.
+              BTC::Opcode.opcode_for_small_integer(part.to_i)
+            else
+              BTC::Data.data_from_hex(part)
+            end
+          end
+          txin.signature_script = (BTC::Script.new << parts)
+        end
         txin.value = input_dict["value"].to_i
         tx.add_input(txin)
       end
@@ -47,7 +52,7 @@ module BTC
         raise ChainFormatError, "Cannot build exact copy of a transaction from JSON response"
       end
 
-      tx.block_hash = BTC::Transaction.hash_from_id(dict["block_hash"]) # block hash is reversed hex like txid.
+      tx.block_hash = BTC.hash_from_id(dict["block_hash"]) # block hash is reversed hex like txid.
       tx.block_height = dict["block_height"].to_i
       tx.block_time = dict["block_time"] ? Time.parse(dict["block_time"]) : nil
       tx.confirmations = dict["confirmations"].to_i

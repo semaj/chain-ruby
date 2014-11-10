@@ -15,6 +15,7 @@ require_relative 'chain/connection.rb'
 require_relative 'chain/transaction.rb'
 require_relative 'chain/transaction_input.rb'
 require_relative 'chain/transaction_output.rb'
+require_relative 'chain/block.rb'
 
 # A module that wraps the Chain SDK.
 module Chain

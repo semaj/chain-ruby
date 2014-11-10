@@ -44,6 +44,12 @@ module Chain
       @network == NETWORK_MAINNET
     end
 
+
+    #
+    # ADDRESS API
+    # ===========
+
+
     # Returns an AddressInfo object describing a given address (BTC::Address or string in Base58Check format)
     def get_address(address)
       get_addresses([address]).first
@@ -145,6 +151,16 @@ module Chain
       end
     end
 
+
+
+
+
+    #
+    # TRANSACTION API
+    # ===============
+
+
+
     # Returns BTC::Transaction instance for a given transaction ID (reversed hex hash).
     # Transaction instance has these additional informational properties:
     # `block_hash` — the binary hash of the block containing the transaction.
@@ -210,24 +226,44 @@ module Chain
       end
     end
 
-    # Provide a Bitcoin block hash or height.
-    # Returns basic details for a Bitcoin block (hash).
-    def get_block(hash_or_height)
-      @conn.get("/#{API_VERSION}/#{network}/blocks/#{hash_or_height}")
+
+
+    # BLOCK API
+    # =========
+
+
+    # Returns BTC::Block object for a given height or block ID (reversed block hash in hex format)
+    def get_block(id_or_height)
+      dict = @conn.get("/#{API_VERSION}/#{network}/blocks/#{id_or_height}")
+      BTC::Block.with_chain_dictionary(dict, chain_client: self)
     end
 
-    # Get latest Bitcoin block.
-    # Returns basic details for latest Bitcoin block (hash).
+    # Returns BTC::Block object for the latest known block.
     def get_latest_block
-      @conn.get("/#{API_VERSION}/#{network}/blocks/latest")
+      dict = @conn.get("/#{API_VERSION}/#{network}/blocks/latest")
+      BTC::Block.with_chain_dictionary(dict, chain_client: self)
     end
 
-    # Provide a Bitcoin block id.
-    # Returns all op_return data contained in a block.
-    def get_block_op_returns(hash_or_height)
-      url = "/#{API_VERSION}/#{network}/blocks/#{hash_or_height}/op-returns"
-      @conn.get(url)
+    # Returns an array of OpReturnInfo objects describing OP_RETURN outputs for a given block.
+    # You may identify the block by its height or block ID (reversed block hash in hex format)
+    def get_block_op_returns(id_or_height)
+      url = "/#{API_VERSION}/#{network}/blocks/#{id_or_height}/op-returns"
+      list = @conn.get(url)
+      list.map do |dict|
+        OpReturnInfo.new(dictionary: dict)
+      end
     end
+
+
+
+
+
+    # NOTIFICATIONS API
+    # =================
+
+
+
+
 
 
 

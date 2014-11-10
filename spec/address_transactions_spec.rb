@@ -13,7 +13,7 @@ describe "Address Transactions API" do
     expect(txs[0].confirmations).to be < txs[1].confirmations
 
     txs[0].tap do |tx|
-      expect(tx.block_hash).to eq(BTC::Transaction.hash_from_id("00000000000000001ea5471a4edc67380f114c6cad06bfd59ac6508f90e8b252"))
+      expect(tx.block_hash).to eq(BTC.hash_from_id("00000000000000001ea5471a4edc67380f114c6cad06bfd59ac6508f90e8b252"))
       expect(tx.block_height).to eq 303404
       expect(tx.block_time.month).to eq 5
       expect(tx.chain_received_at.month).to eq 6
@@ -38,7 +38,7 @@ describe "Address Transactions API" do
     end
 
     txs[1].tap do |tx|
-      expect(tx.block_hash).to eq(BTC::Transaction.hash_from_id("0000000000000000577344f05b6ea721b95fa629e0c3b16cdd929cbdf20f862f"))
+      expect(tx.block_hash).to eq(BTC.hash_from_id("0000000000000000577344f05b6ea721b95fa629e0c3b16cdd929cbdf20f862f"))
       expect(tx.block_height).to eq 303402
       expect(tx.block_time.month).to eq 5
       expect(tx.chain_received_at.month).to eq 6

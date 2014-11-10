@@ -34,7 +34,7 @@ module Chain
     end
     
     def transaction_hash
-      @transaction_hash ||= BTC::Transaction.hash_from_id(@transaction_id)
+      @transaction_hash ||= BTC.hash_from_id(@transaction_id)
     end
 
     private
