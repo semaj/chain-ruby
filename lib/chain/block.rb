@@ -23,7 +23,7 @@ module BTC
       #   ],
       #   "chain_note": "The transaction contained in this block is the coinbase transaction from the genesis block. Its funds are not technically spendable and therefore, the transaction does not technically exist."
       # }
-      
+
       block_id = dict["hash"]
       block = BTC::Block.new(
         version:           dict["version"],
@@ -43,7 +43,7 @@ module BTC
       block.chain_client    = chain_client
       return block
     end
-    
+
     def transactions
       if (!@transactions || @transactions.size == 0) && @transaction_ids
         client = @chain_client || Chain.default_client

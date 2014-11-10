@@ -11,7 +11,7 @@ describe "Block API" do
     block = @client.get_block(0)
     expect(block.height).to eq(0)
     expect(block.block_id).to eq("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f")
-    
+
     block = @client.get_block(100000)
     expect(block.height).to eq(100000)
     expect(block.block_id).to eq("000000000003ba27aa200b1cecaad478d2b00432346c3f1f3986da1afd33e506")

@@ -8,7 +8,7 @@ describe "Block OP_RETURN API" do
   end
 
   it "should get info about one address" do
-    
+
     @client.get_block_op_returns(308920).each do |info|
       expect(info).to be_a_kind_of(Chain::OpReturnInfo)
       expect(info.transaction_hash).to be_a_kind_of(String)
