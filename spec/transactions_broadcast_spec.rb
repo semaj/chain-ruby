@@ -12,7 +12,7 @@ describe "Transaction broadcast API" do
     # Note: this key has some testcoins to be spendable each time this test runs.
     # Please do not remove coins from here. Thank you!
     key = BTC::Key.with_private_key(BTC::Data.data_from_hex("c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a"), public_key_compressed: true)
-    address = key.testnet_address
+    address = key.address(testnet: true)
     expect(address.to_s).to eq("mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV")
 
     # 1. Fetch unspents for this key

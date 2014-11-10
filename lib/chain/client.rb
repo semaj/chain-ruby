@@ -44,6 +44,14 @@ module Chain
       @network == NETWORK_MAINNET
     end
 
+    def dup
+      self.class.new(
+        url: @url,
+        api_key_id: @api_key_id,
+        api_key_secret: @api_key_secret,
+        network: @network)
+    end
+
 
     #
     # ADDRESS API
