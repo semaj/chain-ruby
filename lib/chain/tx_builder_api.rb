@@ -34,7 +34,7 @@ class TransactionBuilderAPI
   #
   # Response: unsigned transaction and info about required signatures (SIGHASH_ALL by default)
   # {
-  #   "required_signatures": [
+  #   "inputs_to_sign": [
   #     {
   #       "address": "1address1",
   #       "hash_to_sign": "0327549...",
@@ -84,6 +84,8 @@ class TransactionBuilderAPI
           "code" => "CH300"
       }
     end
+
+    input_addresses = input_addresses.map{|a| a.public_address }
 
     all_addresses += input_addresses
 
@@ -190,23 +192,23 @@ class TransactionBuilderAPI
     response = {}
 
     tx = result.transaction
-    txindex = 0
-    response["required_signatures"] = tx.inputs.map do |txin|
+    i = 0
+    response["inputs_to_sign"] = tx.inputs.map do |txin|
       utxo = txin.transaction_output
       d = {
         "address"      => utxo.script.standard_address(testnet: !change_address.mainnet?).to_s,
-        "hash_to_sign" => BTC::Data.hex_from_data(tx.signature_hash(input_index: txindex,
+        "hash_to_sign" => BTC::Data.hex_from_data(tx.signature_hash(input_index: i,
                                                                     output_script: utxo.script,
                                                                     hash_type: BTC::SIGHASH_ALL)),
       }
-      if txindex == 0
+      if i == 0
         d["signature"] = "!---insert-signature---!"
         d["public_key"] = "!---insert-public-key---!"
       else
         d["signatures"] = ["!---insert-first-signature---!", "..."]
         d["public_keys"] = ["!---insert-first-public-key---!", "..."]
       end
-      txindex += 1
+      i += 1
       d
     end
 
@@ -226,7 +228,7 @@ class TransactionBuilderAPI
   #
   # POST /v2/transactions/sign
   # {
-  #   "required_signatures": [
+  #   "inputs_to_sign": [
   #     {
   #       "address": "1address1",
   #       "hash_to_sign": "0327549...",
@@ -247,7 +249,7 @@ class TransactionBuilderAPI
   #   }
   # }
   #
-  # Response: info about the signed transaction. It is broadcasted right away.
+  # Response: info about the signed transaction.
   # {
   #   "signed_transaction": {
   #     "hex": "0100000001ec...",
@@ -257,6 +259,239 @@ class TransactionBuilderAPI
   # }
   def sign_transaction(dict)
 
+    if !dict["unsigned_transaction"].is_a?(Hash) ||
+       !dict["unsigned_transaction"]["hex"].is_a?(String)
+      return {
+        "message" => "Unsigned transaction is required.",
+        "code" => "CH?08",
+      }
+    end
+
+    tx = BTC::Transaction.with_hex(dict["unsigned_transaction"]["hex"])
+
+    if !tx
+      return {
+        "message" => "Invalid transaction encoding.",
+        "code" => "CH?09",
+      }
+    end
+
+    # inputs could be empty if tx is fully signed by the client.
+    inputs_to_sign = dict["inputs_to_sign"] || []
+
+    if !inputs_to_sign.is_a?(Array)
+      return {
+        "message" => "Inputs to sign must be an array of dictionaries.",
+        "code" => "CH?10",
+      }
+    end
+
+    # Either they give us no signed inputs or they give us all of them.
+    if inputs_to_sign.size != 0 && inputs_to_sign.size != tx.inputs.size
+      return {
+        "message" => "Invalid number of inputs.",
+        "code" => "CH?11",
+      }
+    end
+
+    inputs_to_sign.each_with_index do |input_dict, i|
+
+      # BTC::TransactionBuilder always puts utxo script in the signature_script.
+      output_script = tx.inputs[i].signature_script
+
+      # a. Check if we have the complete signature_script already for arbitrary script
+      if (hex_script = input_dict["signature_script"]).is_a?(String)
+        sig_script = Script.with_data(BTC::Data.data_from_hex(hex_script))
+        if !sig_script
+          return {
+            "message" => "Invalid signature_script encoding for input #{i}",
+            "code" => "CH?12",
+          }
+        end
+        tx.inputs[i].signature_script = sig_script
+
+      # b. Check if we have a single key and a single signature
+      elsif input_dict["signature"]
+        sig = BTC::Data.data_from_hex(input_dict["signature"])
+        if err = check_raw_signature(sig)
+          return err
+        end
+
+        # If it's an old-school '<pubkey> OP_CHECKSIG' script, we only need a signature.
+        # And a public key could be either compressed or non-compressed, does not matter.
+        if output_script.public_key_script?
+          pk = BTC::Key.with_public_key(output_script.to_a.first)
+          if !pk
+            return {
+              "message" => "Output script does not have a valid public key for input #{i}.",
+              "code" => "CH?14",
+            }
+          end
+
+          if !pk.verify_ecdsa_signature(sig, tx.signature_hash(input_index: i, output_script: output_script, hash_type: BTC::SIGHASH_ALL))
+            return invalid_sig_response
+          end
+
+          tx.inputs[i].signature_script = BTC::Script.new << pushdata_sig(sig)
+
+        # Most popular "pay to key hash" script (aka "pay to address")
+        # Signer must provide a pubkey as well and that pubkey must hash into address (so compressed/uncompressed matters)
+        # Script is "OP_DUP OP_HASH160 <20-byte hash> OP_EQUALVERIFY OP_CHECKSIG"
+        elsif output_script.public_key_hash_script?
+
+          address_hash = output_script.to_a[2]
+
+          pk = BTC::Data.data_from_hex(input_dict["public_key"])
+
+          if !pk
+            return {
+              "message" => "Public key is missing for input #{i}.",
+              "code" => "CH?15",
+            }
+          end
+
+          # Check if pubkey is itself valid and canonical
+          if err = check_raw_pubkey(pk)
+            return err
+          end
+
+          # Check if pubkey is hashed to this address
+          if BTC::Data.hash160(pk) != address_hash
+            return invalid_sig_response("Invalid pubkey (does not match address, check if it's compressed or uncompressed)")
+          end
+
+          tx.inputs[i].signature_script = BTC::Script.new << pushdata_sig(sig) << pk
+
+        else
+          return {
+            "message" => "Unsupported output script: #{output_script.to_s} for input #{i}",
+            "code" => "CH?16",
+          }
+        end # types of single-key scripts
+
+      # c. Check if we have a multisig signatures and pubkeys.
+      #    This applies to both P2SH and raw non-P2SH multisig outputs.
+      elsif input_dict["signatures"].is_a?(Array)
+
+        # First, check if all signatures are kosher.
+        sigs = input_dict["signatures"].map{|s| BTC::Data.data_from_hex(s) }
+
+        sigs.each do |sig|
+          if err = check_raw_signature(sig)
+            return err
+          end
+        end
+
+        if sigs.size == 0
+          return invalid_sig_response("No signatures provided for input #{i}.")
+        end
+
+        # Check if it's a simple multisig output for which we need to provide the signatures.
+        # script = "<M> <pubkey1> ... <pubkeyN> <N> OP_CHECKMULTISIG"
+        if output_script.multisig_script?
+          m = output_script.multisig_signatures_required
+          if sigs.size != m
+            return invalid_sig_response("Invalid number of signatures (#{m} expected, #{sigs.size} given) for input #{i}")
+          end
+
+          # TODO: verify signatures for each subset of the pubkeys when we have time.
+
+          tx.inputs[i].signature_script = BTC::Script.new << OP_0 << sigs.map{|s| pushdata_sig(s) }
+
+        # Check if it's P2SH script and we assume it is a vanilla multisig.
+        elsif output_script.script_hash_script?
+
+          # We need pubkeys
+          hex_pks = input_dict["public_keys"]
+          if !hex_pks.is_a?(Array) || hex_pks.size == 0
+            return invalid_sig_response("No public keys provided for input #{i}.")
+          end
+
+          # Hex -> binary
+          pks = hex_pks.map{|hexpk| BTC::Data.data_from_hex(hexpk) }
+
+          # Check if every pubkey is kosher.
+          pks.each do |pk|
+            if err = check_raw_pubkey(pk)
+              return err
+            end
+          end
+
+          # Now compose a multisig script
+          multisig_script = BTC::Script.multisig_script(public_keys: pks, signatures_required: sigs.size)
+
+          # Check that it hashes to P2SH hash.
+          if !(multisig_script.p2sh_script == output_script)
+            return invalid_sig_response("Multisig script with provided signatures and pubkeys does not match P2SH hash (check if pubkeys are compressed/uncompressed correctly).")
+          end
+
+          # TODO: verify the signatures against each subset of pubkey when we have time.
+
+          # Compose the final input. (Sigs and multisig serialized pushdata to satisfy P2SH.)
+          tx.inputs[i].signature_script = BTC::Script.new << OP_0 << sigs.map{|s| pushdata_sig(s) } << multisig_script.data
+
+        # Some other kind of script? We don't support it.
+        else
+          return {
+            "message" => "Unsupported output script: #{output_script.to_s} for input #{i}",
+            "code" => "CH?16",
+          }
+        end # types of multisig scripts
+
+      else
+        return {
+          "message" => "Unsupported signature info for input #{i}",
+          "code" => "CH?17",
+        }
+      end # types of signatures
+    end # inputs_to_sign.each_with_index
+
+    # Simply take what we've got and replace transaction
+    # (so we don't need to re-fetch inputs and compute amounts and fees)
+    response = {
+      "signed_transaction" => dict["unsigned_transaction"].dup
+    }
+
+    response["signed_transaction"]["hex"] = tx.to_hex
+
+    return response
+
+  end # sign_transaction
+
+
+
+  private
+
+  # Signature with hashtype appended as needed for signature_script
+  def pushdata_sig(raw_sig)
+    (raw_sig.to_s + WireFormat.encode_uint8(BTC::SIGHASH_ALL))
+  end
+
+  # Returns error dict if sig (without hashtype byte) is invalid.
+  # Returns nil if sig is valid.
+  def check_raw_signature(sig)
+    BTC::Diagnostics.current.last_message = nil
+    if !BTC::Key.validate_script_signature(pushdata_sig(sig))
+      return invalid_sig_response(BTC::Diagnostics.current.last_message)
+    end
+    return nil
+  end
+
+  # Returns error dict if pubkey is invalid or not canonical.
+  # Returns nil if pubkey is valid.
+  def check_raw_pubkey(pk)
+    BTC::Diagnostics.current.last_message = nil
+    if !BTC::Key.validate_public_key(pk)
+      return invalid_sig_response(BTC::Diagnostics.current.last_message || "Invalid public key.")
+    end
+    return nil
+  end
+
+  def invalid_sig_response(msg = nil)
+    return {
+      "message" => msg || "Invalid signature.",
+      "code" => "CH?13",
+    }
   end
 
 end # TransactionBuilderAPI

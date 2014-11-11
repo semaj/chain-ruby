@@ -16,7 +16,6 @@ describe "Transaction builder API" do
     address = key.address(testnet: true)
     expect(address.to_s).to eq("mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV")
 
-
     result = @builder.build_transaction({
         "inputs" => [
           "mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV"
@@ -36,9 +35,15 @@ describe "Transaction builder API" do
         "min_confirmations" => 0
       })
 
-    puts result.inspect
+    #puts result.inspect
 
+    expect(result["inputs_to_sign"].class).to eq(Array)
     expect(result["unsigned_transaction"].class).to eq(::Hash)
+
+    tx = BTC::Transaction.with_hex(result["unsigned_transaction"]["hex"])
+
+    expect(tx.inputs.size).to eq(result["inputs_to_sign"].size)
+
   end
 
 end
