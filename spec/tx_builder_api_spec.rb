@@ -232,7 +232,7 @@ describe "Transaction builder API" do
     # puts tx.inspect
 
     # Broadcast for debugging
-    if !true
+    if false
       txid =  @client.send_transaction(tx)
       puts txid.inspect
     end
