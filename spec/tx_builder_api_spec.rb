@@ -94,8 +94,31 @@ describe "Transaction builder API" do
 
     expect(result["signed_transaction"].class).to eq(::Hash)
 
+    tx = BTC::Transaction.with_hex(result["signed_transaction"]["hex"])
+
+    # #<BTC::Transaction:119e50c547b8e3b008e64616d9242c8de29b5e1611c3479916cb5b54980c845c v1
+    #   inputs:[
+    #     #<BTC::TransactionInput prev:539dd2e347[0] script:"304402204d0b66152b38b4679e5f2c1410d99ffc20e18777e6996ae848aca42c1087c1fa02203c3ac4952e424c7bcc77f1892007c98db8a0b5e5908423b1ad44f38c71fc9d1401 0378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71">
+    #     ]
+    #   outputs:[
+    #     #<BTC::TransactionOutput value:0.00001000 script:"OP_DUP OP_HASH160 79fbfc3f34e7745860d76137da68f362380c606c OP_EQUALVERIFY OP_CHECKSIG">,
+    #     #<BTC::TransactionOutput value:0.00002000 script:"OP_DUP OP_HASH160 79fbfc3f34e7745860d76137da68f362380c606c OP_EQUALVERIFY OP_CHECKSIG">,
+    #     #<BTC::TransactionOutput value:8.79996900 script:"OP_DUP OP_HASH160 79fbfc3f34e7745860d76137da68f362380c606c OP_EQUALVERIFY OP_CHECKSIG">
+    #   ]>
+    # puts tx.inspect
+
+    # Broadcast for debugging
+    if false
+      txid =  @client.send_transaction(tx)
+      puts txid.inspect
+    end
+
   end
 
+
+  it "should spend a multisig P2SH input" do
+
+  end
 
 
 end
