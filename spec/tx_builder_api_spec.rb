@@ -35,7 +35,19 @@ describe "Transaction builder API" do
         "min_confirmations" => 0
       })
 
-    #puts result.inspect
+    # {"inputs_to_sign"=>[
+    #   {"address"=>"mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV",
+    #     "hash_to_sign"=>"68de81e49eee282ec147baccbb596d1e430c9285fb4db101d27234107554358d",
+    #     "signature"=>"!---insert-signature---!",
+    #     "public_key"=>"!---insert-public-key---!"}
+    #   ],
+    #   "unsigned_transaction"=>{
+    #     "hex"=>"0100000001539dd2e347a3219277bd6d26ef169c8ca3e9d9a7a841880d4f5f4bd6c5fd1479000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88acffffffff03e8030000000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88acd0070000000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88ace4af7334000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88ac00000000",
+    #     "amount"=>879999900,
+    #     "miner_fee"=>100
+    #   }
+    # }
+    # puts result.inspect
 
     expect(result["inputs_to_sign"].class).to eq(Array)
     expect(result["unsigned_transaction"].class).to eq(::Hash)
@@ -44,6 +56,46 @@ describe "Transaction builder API" do
 
     expect(tx.inputs.size).to eq(result["inputs_to_sign"].size)
 
+    # Sign the inputs & send for assembly
+
+    request2 = result.dup
+    request2["inputs_to_sign"].each do |dict|
+      expect(dict["address"]).to eq("mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV")
+      hash = BTC::Data.data_from_hex(dict["hash_to_sign"])
+      expect(hash.size).to eq(32)
+
+      dict["signature"] = BTC::Data.hex_from_data(key.ecdsa_signature(hash))
+      dict["public_key"] = BTC::Data.hex_from_data(key.public_key)
+    end
+
+    # Send for composing a final signed transaction
+    # {"inputs_to_sign"=>[
+    #   {
+    #     "address"=>"mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV",
+    #     "hash_to_sign"=>"68de81e49eee282ec147baccbb596d1e430c9285fb4db101d27234107554358d",
+    #     "signature"=>"304402204d0b66152b38b4679e5f2c1410d99ffc20e18777e6996ae848aca42c1087c1fa02203c3ac4952e424c7bcc77f1892007c98db8a0b5e5908423b1ad44f38c71fc9d14",
+    #     "public_key"=>"0378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71"
+    #   }],
+    #   "unsigned_transaction"=>{
+    #     "hex"=>"0100000001539dd2e347a3219277bd6d26ef169c8ca3e9d9a7a841880d4f5f4bd6c5fd1479000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88acffffffff03e8030000000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88acd0070000000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88ace4af7334000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88ac00000000",
+    #     "amount"=>879999900,
+    #     "miner_fee"=>100
+    #   }
+    # }
+    # puts result.inspect
+
+    result = @builder.assemble_transaction(request2)
+
+    # {"signed_transaction"=>
+    #   {"hex"=>"0100000001539dd2e347a3219277bd6d26ef169c8ca3e9d9a7a841880d4f5f4bd6c5fd1479000000006a47304402204d0b66152b38b4679e5f2c1410d99ffc20e18777e6996ae848aca42c1087c1fa02203c3ac4952e424c7bcc77f1892007c98db8a0b5e5908423b1ad44f38c71fc9d1401210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71ffffffff03e8030000000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88acd0070000000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88ace4af7334000000001976a91479fbfc3f34e7745860d76137da68f362380c606c88ac00000000",
+    #    "amount"=>879999900,
+    #    "miner_fee"=>100}}
+    puts result.inspect
+
+    expect(result["signed_transaction"].class).to eq(::Hash)
+
   end
+
+
 
 end

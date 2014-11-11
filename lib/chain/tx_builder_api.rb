@@ -213,7 +213,7 @@ class TransactionBuilderAPI
     end
 
     response["unsigned_transaction"] = {
-      "hex" => BTC::Data.hex_from_data(result.transaction.data),
+      "hex" => result.transaction.to_hex,
       "amount" => result.outputs_amount,
       "miner_fee" => result.fee,
     }
@@ -226,7 +226,7 @@ class TransactionBuilderAPI
   # 2. Client posts complete information about signatures and an unsigned transaction
   #    to put those signatures in.
   #
-  # POST /v2/transactions/sign
+  # POST /v2/transactions/assemble
   # {
   #   "inputs_to_sign": [
   #     {
@@ -257,7 +257,7 @@ class TransactionBuilderAPI
   #     "miner_fee": 10000
   #   }
   # }
-  def sign_transaction(dict)
+  def assemble_transaction(dict)
 
     if !dict["unsigned_transaction"].is_a?(Hash) ||
        !dict["unsigned_transaction"]["hex"].is_a?(String)
@@ -456,7 +456,7 @@ class TransactionBuilderAPI
 
     return response
 
-  end # sign_transaction
+  end # assemble_transaction
 
 
 
@@ -464,7 +464,7 @@ class TransactionBuilderAPI
 
   # Signature with hashtype appended as needed for signature_script
   def pushdata_sig(raw_sig)
-    (raw_sig.to_s + WireFormat.encode_uint8(BTC::SIGHASH_ALL))
+    (raw_sig.to_s + BTC::WireFormat.encode_uint8(BTC::SIGHASH_ALL))
   end
 
   # Returns error dict if sig (without hashtype byte) is invalid.
