@@ -1,6 +1,6 @@
 require_relative 'spec_helper'
 require_relative '../lib/chain/tx_builder_api.rb'
-require 'btcruby/extensions.rb'
+#require 'btcruby/extensions.rb' # to enable String#to_hex, String#from_hex
 
 describe "Transaction builder API" do
 
@@ -153,6 +153,9 @@ describe "Transaction builder API" do
         "inputs" => [
           "2NDdMCpA9to3ayTkXJQ3DvfKuSxjyRtFG5S"
         ],
+        "p2sh" => {
+          "2NDdMCpA9to3ayTkXJQ3DvfKuSxjyRtFG5S" => BTC::Data.hex_from_data(multisig_script.data)
+        },
         "outputs" => [
           {
             "address" => p2shaddr,
@@ -187,7 +190,7 @@ describe "Transaction builder API" do
       expect(hash.size).to eq(32)
 
       expected_hash = tx.signature_hash(input_index: input_i,
-                                        output_script: tx.inputs[input_i].signature_script,
+                                        output_script: multisig_script,
                                         hash_type: BTC::SIGHASH_ALL)
 
       expect(hash).to eq(expected_hash)
@@ -218,9 +221,9 @@ describe "Transaction builder API" do
     result = @builder.assemble_transaction(request2)
 
     # {"signed_transaction"=>
-    #   {"hex"=>"0100000002e7131826715b36b47b149177b0f2f3169af74b9188d3d02433d7f3b5e6c796a701000000fc00473044022075968c0bd5dd89872cb4793f60e30bcaa44b73f2c4ff31f0ad184f216d2b081202205b6e0d4dbe07d826baeef346d8ff9d02d40c5aa9b0f74b0fafb370aee068a9ae0147304402204b287822f29e683fc0cb16935d11b9401fee5a97893a798b4ca7d43e53eaf8c602207e42f8749083d871ea7d1e0a90e02d44f25f6276787d3c04ed72da681fb3e70f014c6952210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c7121026a361b855808aeba02d3143b3ec884f709b24d5391c515bd4eafd69d1afae337210355e9d91d63acb15a75c1a9205fc4c0a0878778e08e0a9ca22adb0c2c33fa880153aeffffffff12780cf6595ce7d34ca2e2c104dad5a2ea8709348a280cefc2246bdbd0bf142a01000000fb00473044022056c9d4177774917f9a91be9b5f7c458d9d142bd5ac22d219942dd6eec7b98c140220732715ed6ffee27d446792a11578b63b5db13e52898dae26e6dc965b9dc87fb20146304302206882ff20af49797da8a5758024e32517216ec66c119199a3dc9a9f89c24cc56d021f6bf1d49a83fc73f93a2139e519ed31e3ae8b04fbe7bb7245f35da9dd22c6f7014c6952210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c7121026a361b855808aeba02d3143b3ec884f709b24d5391c515bd4eafd69d1afae337210355e9d91d63acb15a75c1a9205fc4c0a0878778e08e0a9ca22adb0c2c33fa880153aeffffffff03e80300000000000017a914df91b0c30b7d6ec20c50e066c07add242dcfcc1d87e80300000000000017a914df91b0c30b7d6ec20c50e066c07add242dcfcc1d87c60700000000000017a914df91b0c30b7d6ec20c50e066c07add242dcfcc1d8700000000",
-    #    "amount"=>3990, "miner_fee"=>10}}
-    puts result.inspect
+    #  {"hex"=>"0100000002ea3bf1cf426ef6aaa45bbba62406e864ea517843ec9c152bbc36ff3ae4e9baef01000000fc0047304402207d5b37f1606570ef7adc324e57d63800bbb0ff4c72dcd9e85fa20ff9b6360d5c02201e149735c341ed5e390ed7770619108ca74ed6ba8edd26ec7d9eb28fe5ae596d01473044022068dae89f2de3891c12995ec8830c8585fa6487484a34fc00323923c28425344002201112cac760ea3332592d27cf73242f5bbde971eba955780124f3ecbe22cc058f014c6952210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c7121026a361b855808aeba02d3143b3ec884f709b24d5391c515bd4eafd69d1afae337210355e9d91d63acb15a75c1a9205fc4c0a0878778e08e0a9ca22adb0c2c33fa880153aeffffffffc0901b75383562bd306299186beb30e72ab07a04ccd5e2924d59d87f532eca6302000000fdfd0000483045022100cceeeb4294048ad5bd21dba0909396bd30f4911d1700e2a615da3cee5f1a819f02203896c9c15d6ae3e1d37ba6c677e52f9f88684aef1926ed8aada66c5a326d918801473044022035ccd3e11e51de873cf69ef3f57a91edea5ca774f5a399d1cdfd84eca8a171cd0220561649664f028260cc3dcf2121e1d5c2871dc72390ace4a881a41ca192d32cea014c6952210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c7121026a361b855808aeba02d3143b3ec884f709b24d5391c515bd4eafd69d1afae337210355e9d91d63acb15a75c1a9205fc4c0a0878778e08e0a9ca22adb0c2c33fa880153aeffffffff03e80300000000000017a914df91b0c30b7d6ec20c50e066c07add242dcfcc1d87e80300000000000017a914df91b0c30b7d6ec20c50e066c07add242dcfcc1d87bc0700000000000017a914df91b0c30b7d6ec20c50e066c07add242dcfcc1d8700000000",
+    #   "amount"=>3980, "miner_fee"=>10}}
+    #puts result.inspect
 
     expect(result["signed_transaction"].class).to eq(::Hash)
 

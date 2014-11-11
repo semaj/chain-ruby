@@ -196,7 +196,19 @@ class TransactionBuilderAPI
     #puts "COMPOSED TX: " + tx.data.to_hex
     tx.inputs.each_with_index do |txin, i|
       utxo = txin.transaction_output
-      txhash = tx.signature_hash(input_index: i, output_script: utxo.script, hash_type: BTC::SIGHASH_ALL)
+      output_script = utxo.script
+      # If it's P2SH, use the underlying script to compute the tx hash.
+      if utxo.script.script_hash_script?
+        p2sh_addr = utxo.script.standard_address(testnet: change_address.testnet?)
+        if !dict["p2sh"].is_a?(Hash) || !(redeem_script_hex = dict["p2sh"][p2sh_addr.to_s])
+          return {
+              "message" => "Missing P2SH mapping from address #{p2sh_addr.to_s} to script data in hex.",
+              "code" => "CH?08"
+          }
+        end
+        output_script = BTC::Script.with_data(BTC::Data.data_from_hex(redeem_script_hex))
+      end
+      txhash = tx.signature_hash(input_index: i, output_script: output_script, hash_type: BTC::SIGHASH_ALL)
       #puts "COMPOSING: txhash = #{txhash.to_hex} i = #{i}"
       d = {
         "address"      => utxo.script.standard_address(testnet: !change_address.mainnet?).to_s,
@@ -417,13 +429,13 @@ class TransactionBuilderAPI
         # Check if it's P2SH script and we assume it is a vanilla multisig.
         elsif output_script.script_hash_script?
 
-          # We need pubkeys
+          # We need pubkeys & mapping to an underlying script.
           hex_pks = input_dict["public_keys"]
           if !hex_pks.is_a?(Array) || hex_pks.size == 0
             return invalid_sig_response("No public keys provided for input #{i}.")
           end
 
-          # Hex -> binary
+          # Hex pubkey -> binary
           pks = hex_pks.map{|hexpk| BTC::Data.data_from_hex(hexpk) }
 
           # Check if every pubkey is kosher.
@@ -436,15 +448,20 @@ class TransactionBuilderAPI
           # Now compose a multisig script
           multisig_script = BTC::Script.multisig_script(public_keys: pks, signatures_required: sigs.size)
 
-          # Check that it hashes to P2SH hash.
-          if !(multisig_script.p2sh_script == output_script)
+          # Check that it hashes to a P2SH hash.
+          if !(multisig_script.p2sh_script == output_script) ||
+            BTC::Data.hash160(multisig_script.data) != output_script.to_a[1]
             return invalid_sig_response("Multisig script with provided signatures and pubkeys does not match P2SH hash (check if pubkeys are compressed/uncompressed correctly).")
           end
 
           # TODO: verify the signatures against each subset of pubkey when we have time.
 
+
           # Compose the final input. (Sigs and multisig serialized pushdata to satisfy P2SH.)
           tx.inputs[i].signature_script = BTC::Script.new << BTC::OP_0 << sigs.map{|s| pushdata_sig(s) } << multisig_script.data
+
+          # puts "#{i}>> p2sh redeem script: #{multisig_script.to_s}"
+          # puts "#{i}>> sig script: #{tx.inputs[i].signature_script.to_s}"
 
         # Some other kind of script? We don't support it.
         else
