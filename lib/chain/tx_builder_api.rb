@@ -1,3 +1,74 @@
+
+# This to be ported back to api2.git
+module API2_ChainError
+  class Error < StandardError
+    Description = "Generic Chain Error"
+    Code = "CH000"
+
+    def to_s
+      if (m = super) == self.class.name
+        return description
+      else
+        "#{description} (#{super})"
+      end
+    end
+
+    def description
+      self.class::Description
+    end
+
+    def code
+      self.class::Code
+    end
+
+    def to_h
+      {message: to_s, code: code}
+    end
+  end
+
+  class APIError < Error
+    Description = "Chain API Error"
+    Code = "CH000"
+  end
+
+  class InsufficientFunds < Error
+    Description = "Insufficient funds."
+    Code = "CH601"
+  end
+
+  class MissingInput < Error
+    Description = "At least one input address required."
+    Code = "CH602"
+  end
+
+  class MissingOutput < Error
+    Description = "At least one output address required."
+    Code = "CH603"
+  end
+
+  class InvalidInput < Error
+    Description = "Invalid input address format."
+    Code = "CH604"
+  end
+
+  class InvalidOutput < Error
+    Description = "Invalid output address format."
+    Code = "CH605"
+  end
+
+  class InvalidOutputAmount < Error
+    Description = "Invalid output amount (satoshi)."
+    Code = "CH606"
+  end
+
+  class MultipleBlockChains < Error
+    Description = "Transaction cannot include multiple block chains."
+    Code = "CH607"
+  end
+
+end
+
+
 class TransactionBuilderAPI
 
   DEFAULT_FEE_RATE = 10000
@@ -14,8 +85,8 @@ class TransactionBuilderAPI
   #    POST /v2/transactions
   #    {
   #      "inputs": [
-  #        "1address1",
-  #        "3address2"
+  #        {"address": "1address1"},
+  #        {"address": "3address2", "redeem_script": "45feba3940..."}
   #      ],
   #      "outputs": [
   #        {
@@ -77,17 +148,16 @@ class TransactionBuilderAPI
     # Will use to check that all addresses belong to mainnet or testnet.
     all_addresses = []
 
-    input_addresses = dict["inputs"].map{|addr| BTC::Address.with_string(addr) }
-    if input_addresses.include?(nil)
-      return {
-          "message" => "Invalid input address format.",
-          "code" => "CH300"
-      }
-    end
-
-    input_addresses = input_addresses.map{|a| a.public_address }
-
+    builder_inputs = parse_inputs(dict["inputs"])
+    input_addresses = builder_inputs.map{|bi| bi.address }
     all_addresses += input_addresses
+
+    p2sh_map = {}
+    builder_inputs.each do |bi|
+      if bi.redeem_script
+        p2sh_map[bi.address.to_s] = bi.redeem_script
+      end
+    end
 
     outputs = dict["outputs"].map do |outdict|
       script = nil
@@ -200,13 +270,7 @@ class TransactionBuilderAPI
       # If it's P2SH, use the underlying script to compute the tx hash.
       if utxo.script.script_hash_script?
         p2sh_addr = utxo.script.standard_address(testnet: change_address.testnet?)
-        if !dict["p2sh"].is_a?(Hash) || !(redeem_script_hex = dict["p2sh"][p2sh_addr.to_s])
-          return {
-              "message" => "Missing P2SH mapping from address #{p2sh_addr.to_s} to script data in hex.",
-              "code" => "CH?08"
-          }
-        end
-        output_script = BTC::Script.with_data(BTC::Data.data_from_hex(redeem_script_hex))
+        output_script = p2sh_map[p2sh_addr.to_s]
       end
       txhash = tx.signature_hash(input_index: i, output_script: output_script, hash_type: BTC::SIGHASH_ALL)
       #puts "COMPOSING: txhash = #{txhash.to_hex} i = #{i}"
@@ -494,6 +558,44 @@ class TransactionBuilderAPI
 
 
   private
+
+  class BuilderInput
+    attr_accessor :address # BTC::Address
+    attr_accessor :redeem_script # BTC::Script
+  end
+
+  # E.g. [ {"address": "1address1"},
+  #        {"address": "3address2", "redeem_script": "45feba3940..."} ]
+  # Returns a list of BuilderInput objects.
+  def parse_inputs(inputs)
+
+    if !inputs.is_a?(Array) || inputs.size == 0
+      raise API2_ChainError::MissingInput, "No inputs given"
+    end
+
+    i = 0
+    inputs.map do |indict|
+      if !indict.is_a?(Hash)
+        raise API2_ChainError::InvalidInput, "Input #{i} must be a dictionary with 'address' and optional 'redeem_script' keys."
+      end
+      input = BuilderInput.new
+      input.address = BTC::Address.with_string(indict["address"].to_s)
+      if !input.address
+        raise API2_ChainError::InvalidInput, "Input #{i} must have correctly formatted address (regular or P2SH)."
+      end
+      if input.address.p2sh?
+        input.redeem_script = BTC::Script.with_data(BTC::Data.data_from_hex(indict["redeem_script"].to_s))
+        if !input.redeem_script
+          raise API2_ChainError::InvalidInput, "Input #{i} with P2SH address must provide a valid redeem script in hex format."
+        end
+        if BTC::Data.hash160(input.redeem_script.data) != input.address.data
+          raise API2_ChainError::InvalidInput, "Hash of the redeem script for input #{i} does not match P2SH address."
+        end
+      end
+      i += 1
+      input
+    end
+  end
 
   # Signature with hashtype appended as needed for signature_script
   def pushdata_sig(raw_sig)

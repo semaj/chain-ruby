@@ -31,7 +31,7 @@ describe "Transaction builder API" do
 
     result = @builder.build_transaction({
         "inputs" => [
-          "mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV"
+          {"address" => "mrdwvWkma2D6n9mGsbtkazedQQuoksnqJV"}
         ],
         "outputs" => [
           {
@@ -151,11 +151,9 @@ describe "Transaction builder API" do
 
     result = @builder.build_transaction({
         "inputs" => [
-          "2NDdMCpA9to3ayTkXJQ3DvfKuSxjyRtFG5S"
+          {"address" => "2NDdMCpA9to3ayTkXJQ3DvfKuSxjyRtFG5S",
+           "redeem_script" => BTC::Data.hex_from_data(multisig_script.data)}
         ],
-        "p2sh" => {
-          "2NDdMCpA9to3ayTkXJQ3DvfKuSxjyRtFG5S" => BTC::Data.hex_from_data(multisig_script.data)
-        },
         "outputs" => [
           {
             "address" => p2shaddr,
