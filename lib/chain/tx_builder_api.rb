@@ -266,24 +266,30 @@ class TransactionBuilderAPI
     #puts "COMPOSED TX: " + tx.data.to_hex
     tx.inputs.each_with_index do |txin, i|
       utxo = txin.transaction_output
-      output_script = utxo.script
+      redeem_script = utxo.script
       # If it's P2SH, use the underlying script to compute the tx hash.
       if utxo.script.script_hash_script?
         p2sh_addr = utxo.script.standard_address(testnet: change_address.testnet?)
-        output_script = p2sh_map[p2sh_addr.to_s]
+        redeem_script = p2sh_map[p2sh_addr.to_s]
       end
-      txhash = tx.signature_hash(input_index: i, output_script: output_script, hash_type: BTC::SIGHASH_ALL)
+      txhash = tx.signature_hash(input_index: i, output_script: redeem_script, hash_type: BTC::SIGHASH_ALL)
       #puts "COMPOSING: txhash = #{txhash.to_hex} i = #{i}"
       d = {
         "address"      => utxo.script.standard_address(testnet: !change_address.mainnet?).to_s,
         "hash_to_sign" => BTC::Data.hex_from_data(txhash),
       }
-      if i == 0
-        d["signature"] = "!---insert-signature---!"
-        d["public_key"] = "!---insert-public-key---!"
+      if !utxo.script.script_hash_script?
+        d["signature"] = "<insert signature>"
+        d["public_key"] = "<insert public key>"
       else
-        d["signatures"] = ["!---insert-first-signature---!", "..."]
-        d["public_keys"] = ["!---insert-first-public-key---!", "..."]
+        if redeem_script.multisig_script?
+          sigs_count = redeem_script.multisig_signatures_required
+          d["signatures"] = ["<insert first signature>", "<second signature>", "<third signature>", 
+                             "<4th signature>", "<5th signature>", "<6th signature>", "..."][0, sigs_count]
+          d["public_keys"] = redeem_script.multisig_public_keys.map{|pk| BTC::Data.hex_from_data(pk) }
+        else
+          d["signature_script"] = "<insert complete signature script in hex>"
+        end
       end
       response["inputs_to_sign"] << d
     end
@@ -296,6 +302,14 @@ class TransactionBuilderAPI
 
     return response
   end # build_transaction
+
+
+  # Lazy properties for builder
+
+
+
+
+
 
 
 
