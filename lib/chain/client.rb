@@ -77,16 +77,18 @@ module Chain
     end
 
     def transact(args)
-      key_coll = Signer.parse_inputs(args[:inputs])
+      signer = Signer.new(@block_chain)
+      key_coll = signer.parse_inputs(args[:inputs])
       args[:inputs] = key_coll.keys.map {|a| {address: a}}
       template = build_transaction(args)
-      signed_template = Signer.sign(template, key_coll)
+      signed_template = signer.sign(template, key_coll)
       send_transaction(signed_template)
     end
 
     def sign_template(template, keys)
-      key_coll = Signer.parse_inputs(keys)
-      Signer.sign(template, key_coll)
+      signer = Signer.new(@block_chain)
+      key_coll = signer.parse_inputs(keys)
+      signer.sign(template, key_coll)
     end
 
     # Provide a hex encoded, signed transaction -or- unsigned transaction Chain input array.
