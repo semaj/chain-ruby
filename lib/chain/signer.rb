@@ -2,7 +2,7 @@ require 'bitcoin'
 
 module Chain
   class Signer
-    
+
     def initialize(block_chain)
       @block_chain = block_chain
     end
@@ -13,7 +13,7 @@ module Chain
           key = keys[sig['address']]
           next if key.nil? #We only sign what we can for multi-sig
           binary = [sig['hash_to_sign']].pack("H*")
-          with_block_chain do 
+          with_block_chain do
             signature = key.sign(binary).unpack("H*").first
             sig['public_key'] = key.pub
             sig['signature'] = signature
@@ -23,14 +23,19 @@ module Chain
       template
     end
 
-    def parse_inputs(inputs)
-      base58s = inputs.map {|i| i[:private_key]}
-      with_block_chain do 
-        keys = base58s.map{|b| Bitcoin::Key.from_base58(b)} 
+    def parse_inputs(pks)
+      with_block_chain do
+        keys = pks.map do |pk|
+          if pk =~ /\A\h{64}\z/
+            [Bitcoin::Key.new(pk), Bitcoin::Key.new(pk, nil, compressed: false)]
+          else
+            Bitcoin::Key.from_base58(pk)
+          end
+        end.flatten
         Hash[keys.map{|key| [key.addr, key] }]
        end
     end
-    
+
     def with_block_chain(&block)
       prev_bc = Bitcoin::NETWORKS.key(Bitcoin.network)
       Bitcoin.network = @block_chain
