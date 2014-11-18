@@ -85,6 +85,17 @@ module Chain
       send_transaction(signed_template)
     end
 
+    def build_transaction(args)
+      body = {
+        inputs: args[:inputs],
+        outputs: args[:outputs],
+        miner_fee_rate: args[:miner_fee_rate],
+        change_address: args[:change_address],
+        min_confirmations: args[:min_confirmations]
+      }
+      @conn.post("/#{API_VERSION}/#{block_chain}/transactions/build", body)
+    end
+
     def sign_template(template, keys)
       signer = Signer.new(@block_chain)
       key_coll = signer.parse_inputs(keys)
@@ -96,17 +107,6 @@ module Chain
     def send_transaction(body)
       body = {signed_hex: body} if body.is_a? String
       @conn.post("/#{API_VERSION}/#{block_chain}/transactions/send", body)
-    end
-
-    def build_transaction(args)
-      body = {
-        inputs: args[:inputs],
-        outputs: args[:outputs],
-        miner_fee_rate: args[:miner_fee_rate],
-        change_address: args[:change_address],
-        min_confirmations: args[:min_confirmations]
-      }
-      @conn.post("/#{API_VERSION}/#{block_chain}/transactions/build", body)
     end
 
     # Provide a Bitcoin block hash or height.
