@@ -1,6 +1,6 @@
 GIT
   remote: git@github.com:chain-engineering/btcruby.git
-  revision: f63ccca451b51d9f5d5bab16b9dd5167ead02cea
+  revision: 1b67ea2f4ede9c3dd1c6ef5f1692729207d383fc
   specs:
     btcruby (0.1.0)
       ffi (~> 1.9, >= 1.9.3)
