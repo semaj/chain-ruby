@@ -79,7 +79,7 @@ module Chain
     def transact(args)
       signer = Signer.new(@block_chain)
       key_coll = signer.parse_inputs(args[:inputs].map {|i| i[:private_key]})
-      args[:inputs] = key_coll.keys.map {|a| {address: a}}
+      args[:inputs].map! {|a| {address: a[:address]}}
       template = build_transaction(args)
       signed_template = signer.sign(template, key_coll)
       send_transaction(signed_template)
