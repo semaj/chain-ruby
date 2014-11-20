@@ -2,16 +2,16 @@ PATH
   remote: .
   specs:
     chain-ruby (2.1.0pre2)
-      chain-bitcoin-ruby (= 0.0.1)
+      bitcoin-ruby (= 0.0.5)
 
 GEM
   remote: https://rubygems.org/
   specs:
+    bitcoin-ruby (0.0.5)
     byebug (3.4.0)
       columnize (~> 0.8)
       debugger-linecache (~> 1.2)
       slop (~> 3.6)
-    chain-bitcoin-ruby (0.0.1)
     columnize (0.8.9)
     debugger-linecache (1.2.0)
     diff-lcs (1.2.5)

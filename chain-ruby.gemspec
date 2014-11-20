@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.require_path  = "lib"
 
-  s.add_runtime_dependency 'chain-bitcoin-ruby', '0.0.1'
+  s.add_runtime_dependency 'bitcoin-ruby', '0.0.5'
 
   s.add_development_dependency 'rspec', '3.1.0'
   s.add_development_dependency 'byebug', '3.4.0'
