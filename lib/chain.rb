@@ -10,6 +10,7 @@ module Chain
   autoload :Signer, 'chain/signer'
   autoload :Client, 'chain/client'
   autoload :Conn, 'chain/conn'
+  autoload :APIEnumerator, 'chain/api_enumerator'
 
   GUEST_KEY = 'GUEST-TOKEN'
   CHAIN_URL = 'https://api.chain.com'

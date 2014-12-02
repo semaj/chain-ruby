@@ -49,6 +49,11 @@ module Chain
       @conn.get(url, options)
     end
 
+    def each_address_transactions(address, options={}, &block)
+      url = "/#{API_VERSION}/#{block_chain}/addresses/#{address}/transactions"
+      APIEnumerator.new(url, options, @conn).each(&block)
+    end
+
     # Provide an array of Bitcoin address.
     # Returns an array of transactions for a set of Bitcoin address
     # (array of hashes).
