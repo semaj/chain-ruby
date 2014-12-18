@@ -75,6 +75,19 @@ module Chain
     end
 
     # Provide a Bitcoin transaction.
+    # Returns a 'double spend' boolean
+    # and propagation level decimal between 0.0 & 1.0
+    def get_transaction_confidence(hash)
+      @conn.get("/#{API_VERSION}/#{block_chain}/transactions/#{hash}/confidence")
+    end
+
+    # Provide a Bitcoin transaction.
+    # Returns the raw transaction hex data for a given Bitcoin transaction hash.
+    def get_transaction_hex(hash)
+      @conn.get("/#{API_VERSION}/#{block_chain}/transactions/#{hash}/hex")
+    end
+
+    # Provide a Bitcoin transaction.
     # Returns the OP_RETURN string (if it exists) for a Bitcoin
     # transaction(hash).
     def get_transaction_op_return(hash)
