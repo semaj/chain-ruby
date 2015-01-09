@@ -96,7 +96,7 @@ module Chain
     attr_accessor :headers
 
     def next_range
-      self.headers['next-range'][0]
+      self.headers.fetch('next-range', [])[0]
     end
   end
 end
