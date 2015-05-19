@@ -68,8 +68,8 @@ module Chain
     end
 
     def conn
-      @conn ||= establish_conn
       @conn_mutex.synchronize do
+        @conn ||= establish_conn
         begin
           return yield(@conn)
         rescue => e
